@@ -7,7 +7,7 @@ const Index: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
   
   useEffect(() => {
-    document.title = 'Scholar Insights Platform';
+    document.title = 'AVA Ed. Tech. Platform';
   }, []);
   
   // If authenticated, redirect to appropriate dashboard

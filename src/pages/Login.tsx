@@ -53,10 +53,10 @@ const Login: React.FC = () => {
         <div className="text-center mb-8">
           <div className="flex justify-center">
             <div className="h-12 w-12 rounded-md bg-gradient-to-br from-scholar-primary to-scholar-accent flex items-center justify-center">
-              <span className="text-white font-bold text-xl">SI</span>
+              <span className="text-white font-bold text-xl">AE</span>
             </div>
           </div>
-          <h1 className="mt-4 text-3xl font-bold text-gray-900">Scholar Insights</h1>
+          <h1 className="mt-4 text-3xl font-bold text-gray-900">AVA Ed. Tech.</h1>
           <p className="mt-2 text-gray-600">Sign in to your account</p>
         </div>
 

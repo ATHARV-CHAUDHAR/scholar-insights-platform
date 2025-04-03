@@ -88,13 +88,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {sidebarOpen ? (
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-md bg-gradient-to-br from-scholar-primary to-scholar-accent flex items-center justify-center">
-                  <span className="text-white font-bold">SI</span>
+                  <span className="text-white font-bold">AE</span>
                 </div>
-                <span className="font-semibold text-lg">Scholar Insights</span>
+                <span className="font-semibold text-lg">AVA Ed. Tech.</span>
               </div>
             ) : (
               <div className="h-8 w-8 mx-auto rounded-md bg-gradient-to-br from-scholar-primary to-scholar-accent flex items-center justify-center">
-                <span className="text-white font-bold">SI</span>
+                <span className="text-white font-bold">AE</span>
               </div>
             )}
           </Link>
