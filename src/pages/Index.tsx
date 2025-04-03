@@ -1,14 +1,28 @@
-// Update this page (the content is just a fallback if you fail to update the page)
 
-const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+import React, { useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+
+const Index: React.FC = () => {
+  const { isAuthenticated, user } = useAuth();
+  
+  useEffect(() => {
+    document.title = 'Scholar Insights Platform';
+  }, []);
+  
+  // If authenticated, redirect to appropriate dashboard
+  if (isAuthenticated && user) {
+    if (user.role === 'admin') {
+      return <Navigate to="/admin/dashboard" replace />;
+    } else if (user.role === 'teacher') {
+      return <Navigate to="/teacher/dashboard" replace />;
+    } else if (user.role === 'parent') {
+      return <Navigate to="/parent/dashboard" replace />;
+    }
+  }
+  
+  // If not authenticated, redirect to login
+  return <Navigate to="/login" replace />;
 };
 
 export default Index;
