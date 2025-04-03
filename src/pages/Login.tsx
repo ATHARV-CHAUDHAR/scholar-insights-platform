@@ -19,8 +19,11 @@ const Login: React.FC = () => {
   const { login, isAuthenticated, user } = useAuth();
 
   useEffect(() => {
+    // Ensure the title is set correctly
+    document.title = 'AVA Ed. Tech. - Login';
+    
     // Set animation as loaded after a slight delay to ensure smooth transition
-    const timer = setTimeout(() => setAnimationLoaded(true), 200);
+    const timer = setTimeout(() => setAnimationLoaded(true), 300);
     return () => clearTimeout(timer);
   }, []);
 

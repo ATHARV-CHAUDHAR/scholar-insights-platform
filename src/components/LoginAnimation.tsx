@@ -1,9 +1,10 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Stars, Float } from '@react-three/drei';
+import { OrbitControls, Stars, Float, Text } from '@react-three/drei';
 import * as THREE from 'three';
 
+// Custom 3D education-themed object
 const EducationIcon = ({ position, color, speed = 1, size = 1 }) => {
   const mesh = useRef<THREE.Mesh>(null);
   
@@ -24,10 +25,27 @@ const EducationIcon = ({ position, color, speed = 1, size = 1 }) => {
   );
 };
 
+// Main component with loading state
 const LoginAnimation: React.FC = () => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  
+  useEffect(() => {
+    // Mark as loaded after a short delay to ensure proper initialization
+    const timer = setTimeout(() => setIsLoaded(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isLoaded) {
+    return <div className="absolute inset-0 -z-10 bg-gradient-to-br from-gray-900 to-gray-800"></div>;
+  }
+
   return (
     <div className="absolute inset-0 -z-10 opacity-80">
-      <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
+      <Canvas 
+        camera={{ position: [0, 0, 10], fov: 50 }}
+        gl={{ antialias: true, alpha: true }}
+        dpr={[1, 2]} // Optimize for performance and clarity
+      >
         <ambientLight intensity={0.4} />
         <directionalLight position={[10, 10, 5]} intensity={0.8} color="#ffffff" />
         <Stars radius={50} depth={50} count={1000} factor={4} fade speed={1} />
