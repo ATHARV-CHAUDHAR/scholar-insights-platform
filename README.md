@@ -1,48 +1,38 @@
-# Welcome to your Lovable project
+# Welcome to your Scholar Insights Platform
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/cea0057c-8d4f-4d70-96e9-e5cf38f9f0c7
+**GitHub Repository**: [Scholar Insights Platform](https://github.com/ATHARV-CHAUDHAR/scholar-insights-platform)
 
 ## How can I edit this code?
 
-There are several ways of editing your application.
+There are several ways to edit your application.
 
-**Use Lovable**
+### **Use your preferred IDE**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/cea0057c-8d4f-4d70-96e9-e5cf38f9f0c7) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+If you want to work locally using your own IDE, follow these steps:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Step 1: Clone the repository using the Git URL.
+git clone https://github.com/ATHARV-CHAUDHAR/scholar-insights-platform.git
 
 # Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+cd scholar-insights-platform
 
 # Step 3: Install the necessary dependencies.
-npm i
+npm install
 
 # Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### **Edit a file directly in GitHub**
 
-- Navigate to the desired file(s).
+- Navigate to the desired file(s) in the repository.
 - Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- Make your changes and commit them.
 
-**Use GitHub Codespaces**
+### **Use GitHub Codespaces**
 
 - Navigate to the main page of your repository.
 - Click on the "Code" button (green button) near the top right.
@@ -62,12 +52,19 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/cea0057c-8d4f-4d70-96e9-e5cf38f9f0c7) and click on Share -> Publish.
+To deploy this project, you can use GitHub Pages, Vercel, or Netlify. Follow the specific deployment guide of your chosen platform.
 
-## Can I connect a custom domain to my Lovable project?
+## Can I connect a custom domain to my deployed project?
 
-Yes it is!
+Yes, you can!
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+If using GitHub Pages:
+- Navigate to Repository Settings > Pages.
+- Add a custom domain under the "Custom domain" section.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+For Vercel or Netlify:
+- Go to your project settings on the respective platform.
+- Find the "Domains" section and connect your custom domain.
+
+Refer to the official documentation of your deployment platform for detailed steps.
+
