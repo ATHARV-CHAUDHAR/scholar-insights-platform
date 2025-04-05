@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 // Teacher Pages
 import TeacherDashboard from "./pages/teacher/Dashboard";
 import TeacherAttendance from "./pages/teacher/Attendance";
+import TeacherPerformance from "./pages/teacher/Performance";
 import StudentDetail from "./pages/teacher/StudentDetail";
 
 // Parent Pages
@@ -48,6 +49,14 @@ const App = () => (
               element={
                 <PrivateRoute allowedRoles={['teacher', 'admin']}>
                   <TeacherAttendance />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/teacher/performance" 
+              element={
+                <PrivateRoute allowedRoles={['teacher', 'admin']}>
+                  <TeacherPerformance />
                 </PrivateRoute>
               } 
             />
