@@ -39,9 +39,9 @@ const EducationIcon = ({ position, color, speed = 1, size = 1, mousePosition }) 
     <Float speed={1.5} rotationIntensity={0.5} floatIntensity={0.5}>
       <animated.mesh 
         ref={mesh} 
-        position={position}
-        scale={scale}
-        rotation={rotation}
+        position={new THREE.Vector3(...position)}
+        scale={scale.to(s => new THREE.Vector3(...s))}
+        rotation={rotation.to((r) => [r, 0, 0])}
         onClick={() => setClick(!clicked)}
         onPointerOver={() => setHover(true)}
         onPointerOut={() => setHover(false)}
@@ -136,7 +136,7 @@ const ShootingStar = () => {
       decay={1}
       attenuation={(width) => width}
     >
-      <mesh ref={mesh} position={startPos}>
+      <mesh ref={mesh} position={new THREE.Vector3(startPos[0], startPos[1], startPos[2])}>
         <sphereGeometry args={[0.05, 16, 16]} />
         <meshBasicMaterial color="#ffffff" />
       </mesh>

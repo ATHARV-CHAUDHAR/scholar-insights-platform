@@ -47,7 +47,13 @@ const AttendanceChart: React.FC<AttendanceChartProps> = ({
               />
               <YAxis className="transition-all duration-300" />
               <Tooltip 
-                formatter={(value, name) => [`${value}%`, name.charAt(0).toUpperCase() + name.slice(1)]}
+                formatter={(value, name) => {
+                  // Ensure name is a string before using string methods
+                  const formattedName = typeof name === 'string' 
+                    ? name.charAt(0).toUpperCase() + name.slice(1) 
+                    : String(name);
+                  return [`${value}%`, formattedName];
+                }}
                 labelFormatter={(label) => `Subject: ${label}`}
                 contentStyle={{
                   background: 'rgba(255, 255, 255, 0.95)',
