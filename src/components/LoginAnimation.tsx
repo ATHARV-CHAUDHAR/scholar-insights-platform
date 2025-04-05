@@ -35,13 +35,14 @@ const EducationIcon = ({ position, color, speed = 1, size = 1, mousePosition }) 
     }
   });
 
+  // Create a position vector from the array
+  const positionVector = new THREE.Vector3(...position);
+
   return (
     <Float speed={1.5} rotationIntensity={0.5} floatIntensity={0.5}>
       <animated.mesh 
-        ref={mesh} 
-        position={new THREE.Vector3(...position)}
-        scale={scale.to(s => new THREE.Vector3(...s))}
-        rotation={rotation.to((r) => [r, 0, 0])}
+        ref={mesh as React.RefObject<THREE.Mesh>} 
+        position={positionVector}
         onClick={() => setClick(!clicked)}
         onPointerOver={() => setHover(true)}
         onPointerOut={() => setHover(false)}
@@ -128,6 +129,9 @@ const ShootingStar = () => {
     }
   });
   
+  // Create a position vector from the array
+  const positionVector = new THREE.Vector3(startPos[0], startPos[1], startPos[2]);
+  
   return (
     <Trail
       width={0.2}
@@ -136,7 +140,7 @@ const ShootingStar = () => {
       decay={1}
       attenuation={(width) => width}
     >
-      <mesh ref={mesh} position={new THREE.Vector3(startPos[0], startPos[1], startPos[2])}>
+      <mesh ref={mesh} position={positionVector}>
         <sphereGeometry args={[0.05, 16, 16]} />
         <meshBasicMaterial color="#ffffff" />
       </mesh>
