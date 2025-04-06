@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { 
   Card, 
@@ -37,44 +37,125 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
-import { CheckCircle2, XCircle, AlertCircle, SaveIcon, XIcon, CheckIcon } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertCircle, SaveIcon, XIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
-  students, 
-  classes, 
-  subjects,
-  attendance as mockAttendance 
-} from '@/utils/mockData';
+  getClasses, 
+  getDivisions,
+  getSubjectsByTeacher,
+  getStudentsByClass,
+  getAttendanceByClassAndDate,
+  saveAttendance
+} from '@/services/dataService';
+import { useAuth } from '@/contexts/AuthContext';
+import { Attendance, Student, Subject, Division, Teacher } from '@/types';
 
 const TeacherAttendance: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [selectedClass, setSelectedClass] = useState<string>(classes[0].id);
-  const [selectedSubject, setSelectedSubject] = useState<string>(subjects[0].id);
+  const [selectedDivisionId, setSelectedDivisionId] = useState<string>("");
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>("");
   const [attendanceData, setAttendanceData] = useState<
-    Array<{ studentId: string; status: 'present' | 'absent' | 'late' }>
+    Array<{ student_id: string; status: 'Present' | 'Absent' | 'Late' }>
   >([]);
   const [showAttendanceDialog, setShowAttendanceDialog] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   
-  const filteredStudents = students.filter(student => 
-    classes.find(c => c.id === selectedClass)?.name === student.class && 
-    classes.find(c => c.id === selectedClass)?.section === student.section
+  // Fetch divisions
+  const { data: divisions = [] } = useQuery({
+    queryKey: ['divisions'],
+    queryFn: getDivisions,
+    enabled: !!user
+  });
+  
+  // Fetch teacher subjects
+  const { data: teacherSubjects = [] } = useQuery({
+    queryKey: ['teacherSubjects', user?.id],
+    queryFn: () => getSubjectsByTeacher(user?.id || ''),
+    enabled: !!user && user.role === 'Teacher'
+  });
+  
+  // Filter divisions based on teacher's subjects
+  const teacherDivisions = divisions.filter(division => 
+    teacherSubjects.some(subject => subject.division_id === division.id)
   );
+  
+  // Set default division and subject when data is loaded
+  useEffect(() => {
+    if (teacherDivisions.length > 0 && !selectedDivisionId) {
+      setSelectedDivisionId(teacherDivisions[0].id);
+    }
+    
+    if (teacherSubjects.length > 0 && !selectedSubjectId) {
+      setSelectedSubjectId(teacherSubjects[0].subject_id);
+    }
+  }, [teacherDivisions, teacherSubjects]);
+  
+  // Fetch students for the selected division
+  const { data: students = [] } = useQuery({
+    queryKey: ['students', selectedDivisionId],
+    queryFn: () => {
+      const division = divisions.find(d => d.id === selectedDivisionId);
+      return getStudentsByClass(division?.class_id || '');
+    },
+    enabled: !!selectedDivisionId
+  });
+  
+  // Fetch attendance data for the selected date, division and subject
+  const { data: existingAttendance = [] } = useQuery({
+    queryKey: ['attendance', selectedDivisionId, selectedDate, selectedSubjectId],
+    queryFn: () => {
+      const formattedDate = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
+      const division = divisions.find(d => d.id === selectedDivisionId);
+      return getAttendanceByClassAndDate(division?.class_id || '', formattedDate);
+    },
+    enabled: !!selectedDivisionId && !!selectedDate && !!selectedSubjectId
+  });
+  
+  // Save attendance mutation
+  const saveMutation = useMutation({
+    mutationFn: saveAttendance,
+    onSuccess: () => {
+      toast({
+        title: "Attendance saved",
+        description: `Attendance for ${format(selectedDate || new Date(), 'PPP')} has been saved.`,
+      });
+      setShowAttendanceDialog(false);
+      queryClient.invalidateQueries({ queryKey: ['attendance'] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error saving attendance",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
   
   // Prepare for marking attendance
   const handleMarkAttendance = () => {
+    if (!selectedDivisionId || !selectedSubjectId) {
+      toast({
+        title: "Selection required",
+        description: "Please select both a class and subject.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // Initialize attendance data for all students in the selected class
-    const initialAttendance = filteredStudents.map(student => {
+    const initialAttendance = students.map(student => {
       // Try to find existing attendance for this student, date, and subject
-      const existingAttendance = mockAttendance.find(a => 
-        a.studentId === student.id && 
-        a.date === format(selectedDate || new Date(), 'yyyy-MM-dd') &&
-        a.subjectId === selectedSubject
+      const existingRecord = existingAttendance.find(a => 
+        a.student_id === student.id && 
+        a.subject_id === selectedSubjectId
       );
       
       return {
-        studentId: student.id,
-        status: existingAttendance?.status || 'present',
+        student_id: student.id,
+        status: existingRecord?.status || 'Present',
       };
     });
     
@@ -83,31 +164,33 @@ const TeacherAttendance: React.FC = () => {
   };
   
   // Update a student's attendance status
-  const updateAttendanceStatus = (studentId: string, status: 'present' | 'absent' | 'late') => {
+  const updateAttendanceStatus = (studentId: string, status: 'Present' | 'Absent' | 'Late') => {
     setAttendanceData(prev => 
       prev.map(item => 
-        item.studentId === studentId ? { ...item, status } : item
+        item.student_id === studentId ? { ...item, status } : item
       )
     );
   };
   
   // Save the attendance data
-  const saveAttendance = () => {
-    // In a real app, this would send the data to the server
-    // For this demo, we'll just show a toast
-    toast({
-      title: "Attendance saved",
-      description: `Attendance for ${format(selectedDate || new Date(), 'PPP')} has been saved.`,
-    });
-    setShowAttendanceDialog(false);
+  const saveAttendanceData = () => {
+    const formattedDate = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
+    
+    const attendanceRecords = attendanceData.map(item => ({
+      student_id: item.student_id,
+      class_date: formattedDate,
+      status: item.status,
+      subject_id: selectedSubjectId
+    }));
+    
+    saveMutation.mutate(attendanceRecords);
   };
   
   // Get attendance status for a specific student on the selected date and subject
   const getAttendanceStatus = (studentId: string) => {
-    const studentAttendance = mockAttendance.find(a => 
-      a.studentId === studentId && 
-      a.date === format(selectedDate || new Date(), 'yyyy-MM-dd') &&
-      a.subjectId === selectedSubject
+    const studentAttendance = existingAttendance.find(a => 
+      a.student_id === studentId && 
+      a.subject_id === selectedSubjectId
     );
     
     return studentAttendance?.status || 'N/A';
@@ -116,11 +199,11 @@ const TeacherAttendance: React.FC = () => {
   // Render the status icon based on attendance status
   const renderStatusIcon = (status: string) => {
     switch (status) {
-      case 'present':
+      case 'Present':
         return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-      case 'absent':
+      case 'Absent':
         return <XCircle className="h-5 w-5 text-red-500" />;
-      case 'late':
+      case 'Late':
         return <AlertCircle className="h-5 w-5 text-amber-500" />;
       default:
         return null;
@@ -130,16 +213,39 @@ const TeacherAttendance: React.FC = () => {
   // Get the text display for attendance status
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'present':
+      case 'Present':
         return 'Present';
-      case 'absent':
+      case 'Absent':
         return 'Absent';
-      case 'late':
+      case 'Late':
         return 'Late';
       default:
         return 'Not Marked';
     }
   };
+  
+  // Calculate attendance statistics
+  const calculateAttendanceStats = () => {
+    if (!existingAttendance.length) return { present: 0, absent: 0, late: 0, total: 0 };
+    
+    const subjectAttendance = existingAttendance.filter(a => a.subject_id === selectedSubjectId);
+    const presentCount = subjectAttendance.filter(a => a.status === 'Present').length;
+    const absentCount = subjectAttendance.filter(a => a.status === 'Absent').length;
+    const lateCount = subjectAttendance.filter(a => a.status === 'Late').length;
+    const totalCount = subjectAttendance.length;
+    
+    return {
+      present: presentCount,
+      absent: absentCount,
+      late: lateCount,
+      total: totalCount,
+      presentPercentage: totalCount ? (presentCount / totalCount) * 100 : 0,
+      absentPercentage: totalCount ? (absentCount / totalCount) * 100 : 0,
+      latePercentage: totalCount ? (lateCount / totalCount) * 100 : 0
+    };
+  };
+  
+  const stats = calculateAttendanceStats();
 
   return (
     <Layout>
@@ -180,18 +286,21 @@ const TeacherAttendance: React.FC = () => {
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Class</label>
                     <Select 
-                      value={selectedClass} 
-                      onValueChange={setSelectedClass}
+                      value={selectedDivisionId} 
+                      onValueChange={setSelectedDivisionId}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select class" />
                       </SelectTrigger>
                       <SelectContent>
-                        {classes.map(classItem => (
-                          <SelectItem key={classItem.id} value={classItem.id}>
-                            Class {classItem.name} - {classItem.section}
-                          </SelectItem>
-                        ))}
+                        {teacherDivisions.map(division => {
+                          const className = division.Classes?.class_name || '';
+                          return (
+                            <SelectItem key={division.id} value={division.id}>
+                              {className} - {division.section}
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   </div>
@@ -199,18 +308,24 @@ const TeacherAttendance: React.FC = () => {
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Subject</label>
                     <Select 
-                      value={selectedSubject} 
-                      onValueChange={setSelectedSubject}
+                      value={selectedSubjectId} 
+                      onValueChange={setSelectedSubjectId}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select subject" />
                       </SelectTrigger>
                       <SelectContent>
-                        {subjects.map(subject => (
-                          <SelectItem key={subject.id} value={subject.id}>
-                            {subject.name}
-                          </SelectItem>
-                        ))}
+                        {teacherSubjects
+                          .filter(item => item.division_id === selectedDivisionId)
+                          .map(item => (
+                            <SelectItem 
+                              key={item.subject_id} 
+                              value={item.subject_id}
+                            >
+                              {item.Subjects?.subject_name || 'Unknown Subject'}
+                            </SelectItem>
+                          ))
+                        }
                       </SelectContent>
                     </Select>
                   </div>
@@ -219,6 +334,7 @@ const TeacherAttendance: React.FC = () => {
                   <Button 
                     className="w-full" 
                     onClick={handleMarkAttendance}
+                    disabled={!selectedDivisionId || !selectedSubjectId}
                   >
                     Mark Attendance
                   </Button>
@@ -239,21 +355,21 @@ const TeacherAttendance: React.FC = () => {
                       <CheckCircle2 className="h-5 w-5 text-green-500" />
                       <span>Present:</span>
                     </div>
-                    <span className="font-medium">16 (80%)</span>
+                    <span className="font-medium">{stats.present} ({stats.presentPercentage.toFixed(1)}%)</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <AlertCircle className="h-5 w-5 text-amber-500" />
                       <span>Late:</span>
                     </div>
-                    <span className="font-medium">2 (10%)</span>
+                    <span className="font-medium">{stats.late} ({stats.latePercentage.toFixed(1)}%)</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <XCircle className="h-5 w-5 text-red-500" />
                       <span>Absent:</span>
                     </div>
-                    <span className="font-medium">2 (10%)</span>
+                    <span className="font-medium">{stats.absent} ({stats.absentPercentage.toFixed(1)}%)</span>
                   </div>
                 </CardContent>
               </Card>
@@ -264,12 +380,8 @@ const TeacherAttendance: React.FC = () => {
               <CardHeader>
                 <CardTitle>Attendance List</CardTitle>
                 <CardDescription>
-                  Attendance status for Class {
-                    classes.find(c => c.id === selectedClass)?.name
-                  } {
-                    classes.find(c => c.id === selectedClass)?.section
-                  } - {
-                    subjects.find(s => s.id === selectedSubject)?.name
+                  {teacherDivisions.find(d => d.id === selectedDivisionId)?.Classes?.class_name} {teacherDivisions.find(d => d.id === selectedDivisionId)?.section} - {
+                    teacherSubjects.find(s => s.subject_id === selectedSubjectId)?.Subjects?.subject_name
                   } on {
                     selectedDate ? format(selectedDate, 'PPP') : 'Today'
                   }
@@ -279,25 +391,25 @@ const TeacherAttendance: React.FC = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Roll No</TableHead>
+                      <TableHead>Enrollment No</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredStudents.length === 0 ? (
+                    {students.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={3} className="text-center">
                           No students found for this class
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredStudents.map(student => {
+                      students.map(student => {
                         const status = getAttendanceStatus(student.id);
                         return (
                           <TableRow key={student.id}>
-                            <TableCell>{student.rollNumber}</TableCell>
-                            <TableCell>{student.name}</TableCell>
+                            <TableCell>{student.enrollment_number}</TableCell>
+                            <TableCell>{student.user?.username || 'Unknown'}</TableCell>
                             <TableCell>
                               <div className="flex items-center space-x-2">
                                 {renderStatusIcon(status)}
@@ -344,7 +456,9 @@ const TeacherAttendance: React.FC = () => {
           <DialogHeader>
             <DialogTitle>Mark Attendance</DialogTitle>
             <DialogDescription>
-              Class {classes.find(c => c.id === selectedClass)?.name} {classes.find(c => c.id === selectedClass)?.section} - {subjects.find(s => s.id === selectedSubject)?.name} for {selectedDate ? format(selectedDate, 'PPP') : 'Today'}
+              {teacherDivisions.find(d => d.id === selectedDivisionId)?.Classes?.class_name} {teacherDivisions.find(d => d.id === selectedDivisionId)?.section} - {
+                teacherSubjects.find(s => s.subject_id === selectedSubjectId)?.Subjects?.subject_name
+              } for {selectedDate ? format(selectedDate, 'PPP') : 'Today'}
             </DialogDescription>
           </DialogHeader>
           
@@ -352,7 +466,7 @@ const TeacherAttendance: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Roll No</TableHead>
+                  <TableHead>Enrollment No</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Present</TableHead>
                   <TableHead>Late</TableHead>
@@ -360,28 +474,28 @@ const TeacherAttendance: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredStudents.map(student => {
-                  const studentAttendance = attendanceData.find(a => a.studentId === student.id);
+                {students.map(student => {
+                  const studentAttendance = attendanceData.find(a => a.student_id === student.id);
                   return (
                     <TableRow key={student.id}>
-                      <TableCell>{student.rollNumber}</TableCell>
-                      <TableCell>{student.name}</TableCell>
+                      <TableCell>{student.enrollment_number}</TableCell>
+                      <TableCell>{student.user?.username || 'Unknown'}</TableCell>
                       <TableCell className="text-center">
                         <Checkbox
-                          checked={studentAttendance?.status === 'present'}
-                          onCheckedChange={() => updateAttendanceStatus(student.id, 'present')}
+                          checked={studentAttendance?.status === 'Present'}
+                          onCheckedChange={() => updateAttendanceStatus(student.id, 'Present')}
                         />
                       </TableCell>
                       <TableCell className="text-center">
                         <Checkbox
-                          checked={studentAttendance?.status === 'late'}
-                          onCheckedChange={() => updateAttendanceStatus(student.id, 'late')}
+                          checked={studentAttendance?.status === 'Late'}
+                          onCheckedChange={() => updateAttendanceStatus(student.id, 'Late')}
                         />
                       </TableCell>
                       <TableCell className="text-center">
                         <Checkbox
-                          checked={studentAttendance?.status === 'absent'}
-                          onCheckedChange={() => updateAttendanceStatus(student.id, 'absent')}
+                          checked={studentAttendance?.status === 'Absent'}
+                          onCheckedChange={() => updateAttendanceStatus(student.id, 'Absent')}
                         />
                       </TableCell>
                     </TableRow>
@@ -396,7 +510,7 @@ const TeacherAttendance: React.FC = () => {
               <XIcon className="mr-2 h-4 w-4" />
               Cancel
             </Button>
-            <Button onClick={saveAttendance}>
+            <Button onClick={saveAttendanceData}>
               <SaveIcon className="mr-2 h-4 w-4" />
               Save Attendance
             </Button>
