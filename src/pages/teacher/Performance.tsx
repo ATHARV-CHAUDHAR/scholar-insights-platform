@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -13,15 +12,14 @@ import { Progress } from '@/components/ui/progress';
 import { BarChart, TrendingUp, TrendingDown, Search, Filter, Download } from 'lucide-react';
 import { students, subjects } from '@/utils/mockData';
 
-const TeacherPerformance: React.FC = () => {
+const TeacherPerformance = () => {
   const navigate = useNavigate();
   const [selectedClass, setSelectedClass] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("name");
   const [selectedSubject, setSelectedSubject] = useState<string>("all");
   
-  // Generate performance data for all subjects
-  const generatePerformanceData = () => {
+  function generatePerformanceData() {
     return subjects.map(subject => ({
       id: subject.id,
       name: subject.name,
@@ -33,12 +31,11 @@ const TeacherPerformance: React.FC = () => {
       average: Math.floor(Math.random() * 20) + 75, // 75-95%
       trend: Math.random() > 0.5 ? 'up' : 'down',
     }));
-  };
+  }
   
   const subjectPerformance = generatePerformanceData();
   
-  // Generate student performance data
-  const generateStudentPerformance = () => {
+  function generateStudentPerformance() {
     return students.map(student => {
       const scores = subjects.map(subject => {
         return {
@@ -63,19 +60,16 @@ const TeacherPerformance: React.FC = () => {
         trend: averageScore > 80 ? 'up' : averageScore < 70 ? 'down' : 'neutral'
       };
     });
-  };
+  }
   
   const studentPerformance = generateStudentPerformance();
   
-  // Filter and sort students based on current settings
   const filteredStudents = studentPerformance
     .filter(student => {
-      // Filter by class
       if (selectedClass !== "all" && student.class !== selectedClass) {
         return false;
       }
       
-      // Filter by search query
       if (searchQuery && !student.name.toLowerCase().includes(searchQuery.toLowerCase())) {
         return false;
       }
@@ -83,7 +77,6 @@ const TeacherPerformance: React.FC = () => {
       return true;
     })
     .sort((a, b) => {
-      // Sort by selected criterion
       if (sortBy === "name") {
         return a.name.localeCompare(b.name);
       } else if (sortBy === "average") {
@@ -94,7 +87,6 @@ const TeacherPerformance: React.FC = () => {
       return 0;
     });
   
-  // Get performance data for selected subject
   const selectedSubjectData = subjectPerformance.find(s => s.id === selectedSubject)?.scores || subjectPerformance[0].scores;
 
   return (
@@ -127,7 +119,6 @@ const TeacherPerformance: React.FC = () => {
           </TabsList>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Performance Summary Cards */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Average Performance</CardTitle>
@@ -245,7 +236,6 @@ const TeacherPerformance: React.FC = () => {
           </div>
           
           <TabsContent value="students" className="space-y-6 mt-0">
-            {/* Search and Filters */}
             <Card>
               <CardContent className="p-4">
                 <div className="flex flex-col md:flex-row gap-4">
@@ -289,7 +279,6 @@ const TeacherPerformance: React.FC = () => {
               </CardContent>
             </Card>
             
-            {/* Student Performance Table */}
             <Card>
               <CardHeader>
                 <CardTitle>Student Performance</CardTitle>
@@ -389,7 +378,6 @@ const TeacherPerformance: React.FC = () => {
               </Select>
             </div>
             
-            {/* Subject Performance Chart */}
             <Card className="col-span-2">
               <CardHeader>
                 <CardTitle>
@@ -412,7 +400,6 @@ const TeacherPerformance: React.FC = () => {
               </CardContent>
             </Card>
             
-            {/* Subject Analysis */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
