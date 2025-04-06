@@ -88,7 +88,7 @@ const Login: React.FC = () => {
         </div>
 
         {!isSupabaseConfigured() && (
-          <Alert variant="warning" className="mb-4">
+          <Alert className="mb-4">
             <InfoIcon className="h-4 w-4" />
             <AlertDescription>
               Running in demo mode. Supabase is not configured. Any email/password combination will work.

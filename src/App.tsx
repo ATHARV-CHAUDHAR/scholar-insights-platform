@@ -21,6 +21,9 @@ import StudentDetail from "./pages/teacher/StudentDetail";
 // Parent Pages
 import ParentDashboard from "./pages/parent/Dashboard";
 
+// Student Pages
+import StudentDashboard from "./pages/student/Dashboard";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -83,6 +86,16 @@ const App = () => (
               element={
                 <PrivateRoute allowedRoles={['Parent']}>
                   <StudentDetail />
+                </PrivateRoute>
+              } 
+            />
+
+            {/* Student Routes */}
+            <Route 
+              path="/student/dashboard" 
+              element={
+                <PrivateRoute allowedRoles={['Student']}>
+                  <StudentDashboard />
                 </PrivateRoute>
               } 
             />
