@@ -39,7 +39,7 @@ const App = () => (
             <Route 
               path="/teacher/dashboard" 
               element={
-                <PrivateRoute allowedRoles={['teacher', 'admin']}>
+                <PrivateRoute allowedRoles={['Teacher', 'Admin']}>
                   <TeacherDashboard />
                 </PrivateRoute>
               } 
@@ -47,7 +47,7 @@ const App = () => (
             <Route 
               path="/teacher/attendance" 
               element={
-                <PrivateRoute allowedRoles={['teacher', 'admin']}>
+                <PrivateRoute allowedRoles={['Teacher', 'Admin']}>
                   <TeacherAttendance />
                 </PrivateRoute>
               } 
@@ -55,7 +55,7 @@ const App = () => (
             <Route 
               path="/teacher/performance" 
               element={
-                <PrivateRoute allowedRoles={['teacher', 'admin']}>
+                <PrivateRoute allowedRoles={['Teacher', 'Admin']}>
                   <TeacherPerformance />
                 </PrivateRoute>
               } 
@@ -63,7 +63,7 @@ const App = () => (
             <Route 
               path="/teacher/student/:id" 
               element={
-                <PrivateRoute allowedRoles={['teacher', 'admin']}>
+                <PrivateRoute allowedRoles={['Teacher', 'Admin']}>
                   <StudentDetail />
                 </PrivateRoute>
               } 
@@ -73,7 +73,7 @@ const App = () => (
             <Route 
               path="/parent/dashboard" 
               element={
-                <PrivateRoute allowedRoles={['parent']}>
+                <PrivateRoute allowedRoles={['Parent']}>
                   <ParentDashboard />
                 </PrivateRoute>
               } 
@@ -81,7 +81,7 @@ const App = () => (
             <Route 
               path="/parent/student/:id" 
               element={
-                <PrivateRoute allowedRoles={['parent']}>
+                <PrivateRoute allowedRoles={['Parent']}>
                   <StudentDetail />
                 </PrivateRoute>
               } 

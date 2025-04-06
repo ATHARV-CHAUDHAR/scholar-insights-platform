@@ -12,11 +12,11 @@ const Index: React.FC = () => {
   
   // If authenticated, redirect to appropriate dashboard
   if (isAuthenticated && user) {
-    if (user.role === 'admin') {
+    if (user.role === 'Admin') {
       return <Navigate to="/admin/dashboard" replace />;
-    } else if (user.role === 'teacher') {
+    } else if (user.role === 'Teacher') {
       return <Navigate to="/teacher/dashboard" replace />;
-    } else if (user.role === 'parent') {
+    } else if (user.role === 'Parent') {
       return <Navigate to="/parent/dashboard" replace />;
     }
   }

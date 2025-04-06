@@ -10,6 +10,7 @@ export interface User {
   avatar?: string;
   created_at: string;
   updated_at: string;
+  name?: string; // Adding name property for backward compatibility
 }
 
 export interface Student {
@@ -20,6 +21,10 @@ export interface Student {
   dob: string;
   class_name?: string;
   section?: string;
+  name?: string; // For backward compatibility
+  rollNumber?: string; // For backward compatibility
+  class?: string; // For backward compatibility
+  parentId?: string; // For backward compatibility
 }
 
 export interface Teacher {
@@ -53,6 +58,9 @@ export interface Subject {
   id: string;
   subject_name: string;
   subject_code: string;
+  name?: string; // For backward compatibility
+  teacherId?: string; // For backward compatibility
+  classId?: string; // For backward compatibility
 }
 
 export interface Attendance {
@@ -61,6 +69,8 @@ export interface Attendance {
   class_date: string;
   status: 'Present' | 'Absent' | 'Late';
   subject_id: string;
+  studentId?: string; // For backward compatibility
+  subjectId?: string; // For backward compatibility
 }
 
 export interface Exam {
@@ -114,4 +124,22 @@ export interface ChartData {
     borderColor?: string | string[];
     borderWidth?: number;
   }[];
+}
+
+// Additional types for mockData.ts
+export interface Performance {
+  id: string;
+  studentId: string;
+  subjectId: string;
+  examType: string;
+  marks: number;
+  totalMarks: number;
+  date: string;
+}
+
+export interface ClassRoom {
+  id: string;
+  name: string;
+  section: string;
+  teacherId?: string;
 }

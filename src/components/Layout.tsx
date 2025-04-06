@@ -40,7 +40,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   
   // Define navigation items based on user role
   const getNavigationItems = () => {
-    if (user?.role === 'admin') {
+    if (user?.role === 'Admin') {
       return [
         { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
         { name: 'Teachers', path: '/admin/teachers', icon: Users },
@@ -48,14 +48,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         { name: 'Classes', path: '/admin/classes', icon: BookOpen },
         { name: 'Calendar', path: '/admin/calendar', icon: Calendar },
       ];
-    } else if (user?.role === 'teacher') {
+    } else if (user?.role === 'Teacher') {
       return [
         { name: 'Dashboard', path: '/teacher/dashboard', icon: LayoutDashboard },
         { name: 'Attendance', path: '/teacher/attendance', icon: Users },
         { name: 'Performance', path: '/teacher/performance', icon: BookOpen },
         { name: 'Calendar', path: '/teacher/calendar', icon: Calendar },
       ];
-    } else if (user?.role === 'parent') {
+    } else if (user?.role === 'Parent') {
       return [
         { name: 'Dashboard', path: '/parent/dashboard', icon: LayoutDashboard },
         { name: 'Attendance', path: '/parent/attendance', icon: Users },
@@ -72,6 +72,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     logout();
     navigate('/login');
   };
+  
+  // Get username from user object
+  const username = user?.username || user?.name || 'User';
+  const userInitials = username.slice(0, 2).toUpperCase();
   
   return (
     <div className="min-h-screen flex bg-gray-50">
@@ -146,11 +150,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.avatar} alt={user?.name} />
-                  <AvatarFallback>{user?.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                  <AvatarImage src={user?.avatar} alt={username} />
+                  <AvatarFallback>{userInitials}</AvatarFallback>
                 </Avatar>
                 <div className="ml-3">
-                  <p className="text-sm font-medium">{user?.name}</p>
+                  <p className="text-sm font-medium">{username}</p>
                   <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
                 </div>
               </div>
@@ -161,8 +165,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           ) : (
             <div className="flex flex-col items-center space-y-2">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.avatar} alt={user?.name} />
-                <AvatarFallback>{user?.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarImage src={user?.avatar} alt={username} />
+                <AvatarFallback>{userInitials}</AvatarFallback>
               </Avatar>
               <Button variant="ghost" size="icon" onClick={handleLogout}>
                 <LogOut size={18} />
@@ -236,10 +240,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2" size="sm">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.avatar} alt={user?.name} />
-                      <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+                      <AvatarImage src={user?.avatar} alt={username} />
+                      <AvatarFallback>{userInitials}</AvatarFallback>
                     </Avatar>
-                    <span className="hidden md:inline">{user?.name}</span>
+                    <span className="hidden md:inline">{username}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">

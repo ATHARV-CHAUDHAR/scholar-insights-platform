@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -52,10 +51,8 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const success = await login(email, password);
-      if (!success) {
-        setError('Invalid email or password');
-      }
+      await login(email, password);
+      // No need to check for success here, any errors will be caught
     } catch (err) {
       setError('An error occurred during login');
       console.error(err);
@@ -72,11 +69,11 @@ const Login: React.FC = () => {
 
   // If already authenticated, redirect to the appropriate dashboard
   if (isAuthenticated && user) {
-    if (user.role === 'admin') {
+    if (user.role === 'Admin') {
       return <Navigate to="/admin/dashboard" replace />;
-    } else if (user.role === 'teacher') {
+    } else if (user.role === 'Teacher') {
       return <Navigate to="/teacher/dashboard" replace />;
-    } else if (user.role === 'parent') {
+    } else if (user.role === 'Parent') {
       return <Navigate to="/parent/dashboard" replace />;
     }
     // Default fallback

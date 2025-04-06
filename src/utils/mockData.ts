@@ -5,23 +5,35 @@ import { User, Student, Attendance, Subject, Performance, ClassRoom } from '@/ty
 export const users: User[] = [
   {
     id: '1',
-    name: 'John Doe',
+    username: 'johndoe',
     email: 'johndoe@example.com',
-    role: 'admin',
+    role: 'Admin',
+    name: 'John Doe',
+    is_active: true,
+    created_at: '2023-01-01',
+    updated_at: '2023-01-01',
     avatar: 'https://ui-avatars.com/api/?name=John+Doe&background=4A6FFF&color=fff',
   },
   {
     id: '2',
-    name: 'Jane Smith',
+    username: 'janesmith',
     email: 'janesmith@example.com',
-    role: 'teacher',
+    role: 'Teacher',
+    name: 'Jane Smith',
+    is_active: true,
+    created_at: '2023-01-01',
+    updated_at: '2023-01-01',
     avatar: 'https://ui-avatars.com/api/?name=Jane+Smith&background=38B2AC&color=fff',
   },
   {
     id: '3',
-    name: 'Robert Johnson',
+    username: 'robertjohnson',
     email: 'robertjohnson@example.com',
-    role: 'parent',
+    role: 'Parent',
+    name: 'Robert Johnson',
+    is_active: true,
+    created_at: '2023-01-01',
+    updated_at: '2023-01-01',
     avatar: 'https://ui-avatars.com/api/?name=Robert+Johnson&background=6875F5&color=fff',
   },
 ];
@@ -30,6 +42,10 @@ export const users: User[] = [
 export const students: Student[] = [
   {
     id: '1',
+    user_id: '4',
+    enrollment_number: '001',
+    class_id: '1',
+    dob: '2010-05-15',
     name: 'Akash Kumar',
     rollNumber: '001',
     class: '4',
@@ -38,6 +54,10 @@ export const students: Student[] = [
   },
   {
     id: '2',
+    user_id: '5',
+    enrollment_number: '002',
+    class_id: '1',
+    dob: '2010-06-12',
     name: 'Priya Sharma',
     rollNumber: '002',
     class: '4',
@@ -46,6 +66,10 @@ export const students: Student[] = [
   },
   {
     id: '3',
+    user_id: '6',
+    enrollment_number: '003',
+    class_id: '1',
+    dob: '2010-07-20',
     name: 'Rahul Verma',
     rollNumber: '003',
     class: '4',
@@ -53,6 +77,10 @@ export const students: Student[] = [
   },
   {
     id: '4',
+    user_id: '7',
+    enrollment_number: '004',
+    class_id: '1',
+    dob: '2010-08-05',
     name: 'Sneha Patel',
     rollNumber: '004',
     class: '4',
@@ -60,6 +88,10 @@ export const students: Student[] = [
   },
   {
     id: '5',
+    user_id: '8',
+    enrollment_number: '005',
+    class_id: '1',
+    dob: '2010-09-18',
     name: 'Vikram Singh',
     rollNumber: '005',
     class: '4',
@@ -71,30 +103,40 @@ export const students: Student[] = [
 export const subjects: Subject[] = [
   {
     id: '1',
+    subject_name: 'Mathematics',
+    subject_code: 'MATH101',
     name: 'Mathematics',
     teacherId: '2',
     classId: '1',
   },
   {
     id: '2',
+    subject_name: 'Science',
+    subject_code: 'SCI101',
     name: 'Science',
     teacherId: '2',
     classId: '1',
   },
   {
     id: '3',
+    subject_name: 'English',
+    subject_code: 'ENG101',
     name: 'English',
     teacherId: '2',
     classId: '1',
   },
   {
     id: '4',
+    subject_name: 'History',
+    subject_code: 'HIS101',
     name: 'History',
     teacherId: '2',
     classId: '1',
   },
   {
     id: '5',
+    subject_name: 'Geography',
+    subject_code: 'GEO101',
     name: 'Geography',
     teacherId: '2',
     classId: '1',
@@ -142,28 +184,30 @@ export const generateAttendance = (): Attendance[] => {
       subjects.forEach(subject => {
         // Random attendance status with weighted probability
         const rand = Math.random();
-        let status: 'present' | 'absent' | 'late';
+        let status: 'Present' | 'Absent' | 'Late';
         
         if (rand < 0.8) {
-          status = 'present';
+          status = 'Present';
         } else if (rand < 0.95) {
-          status = 'late';
+          status = 'Late';
         } else {
-          status = 'absent';
+          status = 'Absent';
         }
         
         // Special case for Akash (student id 1) with Mathematics (subject id 1)
         // More absences in Mathematics for the case study
         if (student.id === '1' && subject.id === '1' && i > 5 && i < 15 && Math.random() < 0.6) {
-          status = 'absent';
+          status = 'Absent';
         }
         
         attendance.push({
           id: `${student.id}-${date.toISOString().split('T')[0]}-${subject.id}`,
-          studentId: student.id,
-          date: date.toISOString().split('T')[0],
+          student_id: student.id,
+          class_date: date.toISOString().split('T')[0],
           status,
-          subjectId: subject.id,
+          subject_id: subject.id,
+          studentId: student.id,
+          subjectId: subject.id
         });
       });
     }
@@ -229,7 +273,7 @@ export const performance = generatePerformance();
 
 // Get attendance data for a specific student
 export const getStudentAttendance = (studentId: string) => {
-  return attendance.filter(a => a.studentId === studentId);
+  return attendance.filter(a => a.student_id === studentId || a.studentId === studentId);
 };
 
 // Get performance data for a specific student
@@ -240,13 +284,13 @@ export const getStudentPerformance = (studentId: string) => {
 // Calculate attendance percentage for a student by subject
 export const calculateAttendancePercentage = (studentId: string, subjectId?: string) => {
   const studentAttendance = attendance.filter(a => 
-    a.studentId === studentId && 
-    (subjectId ? a.subjectId === subjectId : true)
+    (a.student_id === studentId || a.studentId === studentId) && 
+    (subjectId ? (a.subject_id === subjectId || a.subjectId === subjectId) : true)
   );
   
   if (studentAttendance.length === 0) return 0;
   
-  const presentCount = studentAttendance.filter(a => a.status === 'present' || a.status === 'late').length;
+  const presentCount = studentAttendance.filter(a => a.status === 'Present' || a.status === 'Late').length;
   return (presentCount / studentAttendance.length) * 100;
 };
 
@@ -285,19 +329,19 @@ export const getClassById = (classId: string) => {
 
 // Get student attendance statistics
 export const getStudentAttendanceStats = (studentId: string) => {
-  const studentAttendance = attendance.filter(a => a.studentId === studentId);
+  const studentAttendance = attendance.filter(a => a.student_id === studentId || a.studentId === studentId);
   
   // Group by subject
   const subjectStats = subjects.map(subject => {
-    const subjectAttendance = studentAttendance.filter(a => a.subjectId === subject.id);
-    const presentCount = subjectAttendance.filter(a => a.status === 'present').length;
-    const lateCount = subjectAttendance.filter(a => a.status === 'late').length;
-    const absentCount = subjectAttendance.filter(a => a.status === 'absent').length;
+    const subjectAttendance = studentAttendance.filter(a => a.subject_id === subject.id || a.subjectId === subject.id);
+    const presentCount = subjectAttendance.filter(a => a.status === 'Present').length;
+    const lateCount = subjectAttendance.filter(a => a.status === 'Late').length;
+    const absentCount = subjectAttendance.filter(a => a.status === 'Absent').length;
     const totalClasses = subjectAttendance.length;
     
     return {
       subjectId: subject.id,
-      subjectName: subject.name,
+      subjectName: subject.name || subject.subject_name,
       presentCount,
       lateCount,
       absentCount,
@@ -310,13 +354,13 @@ export const getStudentAttendanceStats = (studentId: string) => {
   return {
     subjectStats,
     overallStats: {
-      presentCount: studentAttendance.filter(a => a.status === 'present').length,
-      lateCount: studentAttendance.filter(a => a.status === 'late').length,
-      absentCount: studentAttendance.filter(a => a.status === 'absent').length,
+      presentCount: studentAttendance.filter(a => a.status === 'Present').length,
+      lateCount: studentAttendance.filter(a => a.status === 'Late').length,
+      absentCount: studentAttendance.filter(a => a.status === 'Absent').length,
       totalClasses: studentAttendance.length,
       attendancePercentage: studentAttendance.length > 0 ? 
-        ((studentAttendance.filter(a => a.status === 'present').length + 
-          studentAttendance.filter(a => a.status === 'late').length) / 
+        ((studentAttendance.filter(a => a.status === 'Present').length + 
+          studentAttendance.filter(a => a.status === 'Late').length) / 
          studentAttendance.length) * 100 : 0
     }
   };
@@ -352,7 +396,7 @@ export const getStudentPerformanceStats = (studentId: string) => {
     
     return {
       subjectId: subject.id,
-      subjectName: subject.name,
+      subjectName: subject.name || subject.subject_name,
       averageMarks,
       trend,
       performances: subjectPerformance
