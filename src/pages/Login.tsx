@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { isSupabaseConfigured } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, InfoIcon } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Login: React.FC = () => {
@@ -14,14 +15,11 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [animationLoaded, setAnimationLoaded] = useState(false);
-  const [loginStep, setLoginStep] = useState('email'); // 'email' or 'password'
+  const [loginStep, setLoginStep] = useState('email');
   const { login, isAuthenticated, user } = useAuth();
 
   useEffect(() => {
-    // Ensure the title is set correctly
     document.title = 'AVA Ed. Tech. - Login';
-    
-    // Set animation as loaded after a slight delay to ensure smooth transition
     const timer = setTimeout(() => setAnimationLoaded(true), 300);
     return () => clearTimeout(timer);
   }, []);
@@ -33,7 +31,6 @@ const Login: React.FC = () => {
       return;
     }
     
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError('Please enter a valid email address');
@@ -41,7 +38,6 @@ const Login: React.FC = () => {
     }
     
     setError('');
-    // Animate to password step
     setLoginStep('password');
   };
 
@@ -52,7 +48,6 @@ const Login: React.FC = () => {
 
     try {
       await login(email, password);
-      // No need to check for success here, any errors will be caught
     } catch (err) {
       setError('An error occurred during login');
       console.error(err);
@@ -61,13 +56,11 @@ const Login: React.FC = () => {
     }
   };
 
-  // Go back to email step
   const handleBackToEmail = () => {
     setLoginStep('email');
     setError('');
   };
 
-  // If already authenticated, redirect to the appropriate dashboard
   if (isAuthenticated && user) {
     if (user.role === 'Admin') {
       return <Navigate to="/admin/dashboard" replace />;
@@ -76,13 +69,11 @@ const Login: React.FC = () => {
     } else if (user.role === 'Parent') {
       return <Navigate to="/parent/dashboard" replace />;
     }
-    // Default fallback
     return <Navigate to="/" replace />;
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 px-4 relative overflow-hidden">
-      {/* Static background gradient instead of LoginAnimation */}
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-900 via-gray-900 to-gray-800 opacity-80"></div>
       
       <div className={`w-full max-w-md relative z-10 transition-all duration-1000 transform ${animationLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
@@ -95,6 +86,15 @@ const Login: React.FC = () => {
           <h1 className="mt-4 text-4xl font-bold text-white animate-fade-in">AVA Ed. Tech.</h1>
           <p className="mt-2 text-gray-300 animate-fade-in">Sign in to your account</p>
         </div>
+
+        {!isSupabaseConfigured() && (
+          <Alert variant="warning" className="mb-4">
+            <InfoIcon className="h-4 w-4" />
+            <AlertDescription>
+              Running in demo mode. Supabase is not configured. Any email/password combination will work.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Card className="backdrop-blur-sm bg-white/10 border-white/20 shadow-xl transition-all duration-500 hover:shadow-2xl hover:bg-white/15">
           <CardHeader className="space-y-1">

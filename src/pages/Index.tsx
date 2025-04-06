@@ -18,6 +18,9 @@ const Index: React.FC = () => {
       return <Navigate to="/teacher/dashboard" replace />;
     } else if (user.role === 'Parent') {
       return <Navigate to="/parent/dashboard" replace />;
+    } else if (user.role === 'Student') {
+      // Handle Student role if needed
+      return <Navigate to="/student/dashboard" replace />;
     }
   }
   

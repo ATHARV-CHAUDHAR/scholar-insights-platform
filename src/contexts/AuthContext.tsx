@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, UserRole } from '@/types';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
@@ -22,6 +22,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const checkUser = async () => {
       try {
+        // Check if Supabase is configured before attempting to use it
+        if (!isSupabaseConfigured()) {
+          console.warn('Supabase is not configured. Using demo mode.');
+          setIsLoading(false);
+          return;
+        }
+
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session) {
@@ -42,7 +49,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             role: userData.role_name as UserRole,
             avatar: userData.avatar,
             created_at: userData.created_at,
-            updated_at: userData.updated_at
+            updated_at: userData.updated_at,
+            // For backward compatibility
+            name: userData.username
           });
         }
       } catch (error) {
@@ -54,46 +63,82 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     checkUser();
 
-    // Subscribe to auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-          // Get user profile data
-          const { data: userData, error: userError } = await supabase
-            .from('Users')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .single();
+    // Only set up auth listener if Supabase is configured
+    if (isSupabaseConfigured()) {
+      // Subscribe to auth changes
+      const { data: authListener } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (event === 'SIGNED_IN' && session) {
+            // Get user profile data
+            const { data: userData, error: userError } = await supabase
+              .from('Users')
+              .select('*')
+              .eq('user_id', session.user.id)
+              .single();
 
-          if (userError) {
-            console.error('Error fetching user data:', userError);
-            return;
+            if (userError) {
+              console.error('Error fetching user data:', userError);
+              return;
+            }
+
+            setUser({
+              id: userData.user_id,
+              username: userData.username,
+              email: userData.email,
+              is_active: userData.is_active,
+              role: userData.role_name as UserRole,
+              avatar: userData.avatar,
+              created_at: userData.created_at,
+              updated_at: userData.updated_at,
+              // For backward compatibility
+              name: userData.username
+            });
+          } else if (event === 'SIGNED_OUT') {
+            setUser(null);
           }
-
-          setUser({
-            id: userData.user_id,
-            username: userData.username,
-            email: userData.email,
-            is_active: userData.is_active,
-            role: userData.role_name as UserRole,
-            avatar: userData.avatar,
-            created_at: userData.created_at,
-            updated_at: userData.updated_at
-          });
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
         }
-      }
-    );
+      );
 
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+      return () => {
+        authListener.subscription.unsubscribe();
+      };
+    }
   }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
+      // If Supabase is not configured, use demo mode login
+      if (!isSupabaseConfigured()) {
+        // Demo mode: Create a mock user based on email
+        let mockRole: UserRole = 'Student';
+        if (email.includes('teacher')) mockRole = 'Teacher';
+        else if (email.includes('admin')) mockRole = 'Admin';
+        else if (email.includes('parent')) mockRole = 'Parent';
+        
+        const mockUser: User = {
+          id: '123',
+          username: email.split('@')[0],
+          email: email,
+          is_active: true,
+          role: mockRole,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          name: email.split('@')[0]
+        };
+        
+        setUser(mockUser);
+        
+        toast({
+          title: 'Demo mode login',
+          description: `Welcome ${mockUser.username}! You're using the demo mode.`,
+        });
+        
+        setIsLoading(false);
+        return;
+      }
+      
+      // Real Supabase authentication
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -132,7 +177,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         role: userData.role_name as UserRole,
         avatar: userData.avatar,
         created_at: userData.created_at,
-        updated_at: userData.updated_at
+        updated_at: userData.updated_at,
+        // For backward compatibility
+        name: userData.username
       });
 
       toast({
@@ -149,6 +196,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     setIsLoading(true);
     try {
+      // If using demo mode, just clear the user state
+      if (!isSupabaseConfigured()) {
+        setUser(null);
+        toast({
+          title: 'Logout successful',
+          description: 'You have been logged out from demo mode.',
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      // Real Supabase logout
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       setUser(null);
