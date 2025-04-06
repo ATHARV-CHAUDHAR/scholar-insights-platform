@@ -1,4 +1,3 @@
-
 import { User, Student, Attendance, Subject, Performance, ClassRoom } from '@/types';
 
 // Mock Users
@@ -162,6 +161,11 @@ export const classes: ClassRoom[] = [
     section: 'A',
   },
 ];
+
+// Export a function to get subjects for use in student dashboard
+export const getMockSubjects = () => {
+  return subjects;
+};
 
 // Generate attendance for the last 30 days
 export const generateAttendance = (): Attendance[] => {

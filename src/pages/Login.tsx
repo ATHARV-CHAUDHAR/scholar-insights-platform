@@ -1,12 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { isSupabaseConfigured } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, InfoIcon } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Login: React.FC = () => {
@@ -68,6 +68,8 @@ const Login: React.FC = () => {
       return <Navigate to="/teacher/dashboard" replace />;
     } else if (user.role === 'Parent') {
       return <Navigate to="/parent/dashboard" replace />;
+    } else if (user.role === 'Student') {
+      return <Navigate to="/student/dashboard" replace />;
     }
     return <Navigate to="/" replace />;
   }
@@ -86,15 +88,6 @@ const Login: React.FC = () => {
           <h1 className="mt-4 text-4xl font-bold text-white animate-fade-in">AVA Ed. Tech.</h1>
           <p className="mt-2 text-gray-300 animate-fade-in">Sign in to your account</p>
         </div>
-
-        {!isSupabaseConfigured() && (
-          <Alert className="mb-4">
-            <InfoIcon className="h-4 w-4" />
-            <AlertDescription>
-              Running in demo mode. Supabase is not configured. Any email/password combination will work.
-            </AlertDescription>
-          </Alert>
-        )}
 
         <Card className="backdrop-blur-sm bg-white/10 border-white/20 shadow-xl transition-all duration-500 hover:shadow-2xl hover:bg-white/15">
           <CardHeader className="space-y-1">
@@ -183,14 +176,8 @@ const Login: React.FC = () => {
           </CardContent>
           <CardFooter className="flex flex-col">
             <p className="text-xs text-gray-300 mt-4">
-              For demo purposes, you can use:
+              Please use your Supabase credentials to log in.
             </p>
-            <div className="text-xs text-gray-300 mt-1 space-y-1">
-              <p>Admin: johndoe@example.com</p>
-              <p>Teacher: janesmith@example.com</p>
-              <p>Parent: robertjohnson@example.com</p>
-              <p>(Any password will work)</p>
-            </div>
           </CardFooter>
         </Card>
       </div>
