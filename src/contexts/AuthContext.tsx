@@ -29,19 +29,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const { data: userData, error: userError } = await supabase
             .from('users')
             .select('*')
-            .eq('user_id', session.user.id)
+            .eq('user_id', Number(session.user.id))
             .single();
 
           if (userError) throw userError;
           
           if (userData) {
+            // Determine role based on user tables
+            let userRole: UserRole = 'Student'; // Default role
+            
+            // Check if user is a teacher
+            const { data: teacherData } = await supabase
+              .from('teachers')
+              .select('*')
+              .eq('user_id', userData.user_id)
+              .single();
+              
+            if (teacherData) {
+              userRole = 'Teacher';
+            } else {
+              // Check if user is a parent
+              const { data: parentData } = await supabase
+                .from('parents')
+                .select('*')
+                .eq('user_id', userData.user_id)
+                .single();
+                
+              if (parentData) {
+                userRole = 'Parent';
+              } else {
+                // Check if user is an admin (using role association)
+                const { data: roleData } = await supabase
+                  .from('assoc_user_roles')
+                  .select('*, roles(*)')
+                  .eq('user_id', userData.user_id)
+                  .single();
+                  
+                if (roleData?.roles?.role_name === 'Admin') {
+                  userRole = 'Admin';
+                }
+              }
+            }
+
             setUser({
-              id: userData.user_id,
+              id: String(userData.user_id),
               username: userData.username,
               email: userData.email,
               is_active: userData.is_active,
-              role: userData.role_name as UserRole,
-              avatar: userData.avatar,
+              role: userRole,
+              avatar: null, // Default avatar to null as it doesn't exist in our schema
               created_at: userData.created_at,
               updated_at: userData.updated_at,
               // For backward compatibility
@@ -66,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const { data: userData, error: userError } = await supabase
             .from('users')
             .select('*')
-            .eq('user_id', session.user.id)
+            .eq('user_id', Number(session.user.id))
             .single();
 
           if (userError) {
@@ -75,13 +111,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
 
           if (userData) {
+            // Determine role based on user tables
+            let userRole: UserRole = 'Student'; // Default role
+            
+            // Check if user is a teacher
+            const { data: teacherData } = await supabase
+              .from('teachers')
+              .select('*')
+              .eq('user_id', userData.user_id)
+              .single();
+              
+            if (teacherData) {
+              userRole = 'Teacher';
+            } else {
+              // Check if user is a parent
+              const { data: parentData } = await supabase
+                .from('parents')
+                .select('*')
+                .eq('user_id', userData.user_id)
+                .single();
+                
+              if (parentData) {
+                userRole = 'Parent';
+              } else {
+                // Check if user is an admin (using role association)
+                const { data: roleData } = await supabase
+                  .from('assoc_user_roles')
+                  .select('*, roles(*)')
+                  .eq('user_id', userData.user_id)
+                  .single();
+                  
+                if (roleData?.roles?.role_name === 'Admin') {
+                  userRole = 'Admin';
+                }
+              }
+            }
+
             setUser({
-              id: userData.user_id,
+              id: String(userData.user_id),
               username: userData.username,
               email: userData.email,
               is_active: userData.is_active,
-              role: userData.role_name as UserRole,
-              avatar: userData.avatar,
+              role: userRole,
+              avatar: null, // Default avatar to null as it doesn't exist in our schema
               created_at: userData.created_at,
               updated_at: userData.updated_at,
               // For backward compatibility
@@ -121,7 +193,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('*')
-          .eq('user_id', data.user.id)
+          .eq('user_id', Number(data.user.id))
           .single();
 
         if (userError) {
@@ -134,13 +206,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         if (userData) {
+          // Determine role based on user tables
+          let userRole: UserRole = 'Student'; // Default role
+          
+          // Check if user is a teacher
+          const { data: teacherData } = await supabase
+            .from('teachers')
+            .select('*')
+            .eq('user_id', userData.user_id)
+            .single();
+            
+          if (teacherData) {
+            userRole = 'Teacher';
+          } else {
+            // Check if user is a parent
+            const { data: parentData } = await supabase
+              .from('parents')
+              .select('*')
+              .eq('user_id', userData.user_id)
+              .single();
+              
+            if (parentData) {
+              userRole = 'Parent';
+            } else {
+              // Check if user is an admin (using role association)
+              const { data: roleData } = await supabase
+                .from('assoc_user_roles')
+                .select('*, roles(*)')
+                .eq('user_id', userData.user_id)
+                .single();
+                
+              if (roleData?.roles?.role_name === 'Admin') {
+                userRole = 'Admin';
+              }
+            }
+          }
+
           setUser({
-            id: userData.user_id,
+            id: String(userData.user_id),
             username: userData.username,
             email: userData.email,
             is_active: userData.is_active,
-            role: userData.role_name as UserRole,
-            avatar: userData.avatar,
+            role: userRole,
+            avatar: null, // Default avatar to null as it doesn't exist in our schema
             created_at: userData.created_at,
             updated_at: userData.updated_at,
             // For backward compatibility

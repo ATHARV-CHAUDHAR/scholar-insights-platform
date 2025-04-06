@@ -1,12 +1,13 @@
+
 import { supabase } from '@/integrations/supabase/client';
-import { Student, Attendance, Subject, Class, Division, Result, Teacher, User, PerformanceMetrics } from '@/types';
+import { Student, Attendance, Subject, PerformanceMetrics } from '@/types';
 
 // User related functions
 export const getUserById = async (userId: string) => {
   const { data, error } = await supabase
     .from('users')
     .select('*')
-    .eq('user_id', userId)
+    .eq('user_id', Number(userId))
     .single();
 
   if (error) throw error;
@@ -19,10 +20,9 @@ export const getStudentById = async (studentId: string) => {
     .from('students')
     .select(`
       *,
-      users (*),
-      classes (*)
+      users (*)
     `)
-    .eq('student_id', studentId)
+    .eq('student_id', Number(studentId))
     .single();
 
   if (error) throw error;
@@ -36,7 +36,7 @@ export const getStudentsByClass = async (classId: string) => {
       *,
       users (*)
     `)
-    .eq('class_id', classId);
+    .eq('class_id', Number(classId));
 
   if (error) throw error;
   return data;
@@ -50,7 +50,7 @@ export const getTeacherById = async (teacherId: string) => {
       *,
       users (*)
     `)
-    .eq('teacher_id', teacherId)
+    .eq('teacher_id', Number(teacherId))
     .single();
 
   if (error) throw error;
@@ -65,7 +65,7 @@ export const getAttendanceByStudent = async (studentId: string) => {
       *,
       subjects (*)
     `)
-    .eq('student_id', studentId)
+    .eq('student_id', Number(studentId))
     .order('class_date', { ascending: false });
 
   if (error) throw error;
@@ -76,7 +76,7 @@ export const getAttendanceByClassAndDate = async (classId: string, date: string)
   const { data: students, error: studentsError } = await supabase
     .from('students')
     .select('*')
-    .eq('class_id', classId);
+    .eq('class_id', Number(classId));
 
   if (studentsError) throw studentsError;
 
@@ -96,7 +96,14 @@ export const getAttendanceByClassAndDate = async (classId: string, date: string)
   return data;
 };
 
-export const saveAttendance = async (attendanceData: Partial<Attendance>[]) => {
+type SaveAttendanceData = {
+  student_id: number;
+  class_date: string;
+  status: 'Present' | 'Absent' | 'Late';
+  subject_id: number;
+}
+
+export const saveAttendance = async (attendanceData: SaveAttendanceData[]) => {
   const { data, error } = await supabase
     .from('attendance')
     .upsert(attendanceData, { onConflict: 'student_id,class_date,subject_id' });
@@ -119,7 +126,7 @@ export const getSubjectById = async (subjectId: string) => {
   const { data, error } = await supabase
     .from('subjects')
     .select('*')
-    .eq('subject_id', subjectId)
+    .eq('subject_id', Number(subjectId))
     .single();
 
   if (error) throw error;
@@ -134,7 +141,7 @@ export const getSubjectsByTeacher = async (teacherId: string) => {
       subjects (*),
       divisions (*)
     `)
-    .eq('teacher_id', teacherId);
+    .eq('teacher_id', Number(teacherId));
 
   if (error) throw error;
   return data;
@@ -171,7 +178,7 @@ export const getResultsByStudent = async (studentId: string) => {
       exams (*),
       subjects (*)
     `)
-    .eq('student_id', studentId);
+    .eq('student_id', Number(studentId));
 
   if (error) throw error;
   return data;
@@ -185,7 +192,7 @@ export const getResultsByExam = async (examId: string) => {
       students (*),
       subjects (*)
     `)
-    .eq('exam_id', examId);
+    .eq('exam_id', Number(examId));
 
   if (error) throw error;
   return data;
@@ -199,7 +206,7 @@ export const getPerformanceMetrics = async (studentId: string) => {
       *,
       subjects (*)
     `)
-    .eq('student_id', studentId);
+    .eq('student_id', Number(studentId));
 
   if (error) throw error;
   return data;
@@ -215,13 +222,13 @@ export const getAttendanceStatsBySubject = async (studentId: string) => {
       *,
       subjects (*)
     `)
-    .eq('student_id', studentId);
+    .eq('student_id', Number(studentId));
 
   if (error) throw error;
   
   // Process data to get stats by subject
   // In a real implementation, this would be better handled by a database function
-  const statsBySubject = {};
+  const statsBySubject: Record<string, any> = {};
   data.forEach(attendance => {
     const subjectId = attendance.subject_id;
     if (!statsBySubject[subjectId]) {

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -7,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { supabase } from '@/integrations/supabase/client';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -22,19 +23,9 @@ const Login: React.FC = () => {
   useEffect(() => {
     document.title = 'AVA Ed. Tech. - Login';
     const timer = setTimeout(() => setAnimationLoaded(true), 300);
-
-    // Check Supabase configuration
-    const checkSupabase = async () => {
-      try {
-        // Just check if we can connect to Supabase, don't log sensitive information
-        setDebugInfo('Connected to Supabase.');
-      } catch (e) {
-        console.error('Supabase initialization error:', e);
-        setDebugInfo('Error connecting to Supabase. Check console for details.');
-      }
-    };
     
-    checkSupabase();
+    // Clear any debug info
+    setDebugInfo('Ready to login. Use demo logins below for testing.');
     
     return () => clearTimeout(timer);
   }, []);
@@ -89,14 +80,32 @@ const Login: React.FC = () => {
     return <Navigate to="/" replace />;
   }
 
-  // Helper function for demo login
-  const handleDemoLogin = async () => {
+  // Helper functions for demo logins
+  const handleDemoLogin = async (role: 'student' | 'teacher' | 'parent' | 'admin') => {
     setError('');
     setIsLoading(true);
     
     try {
       // Use demo credentials for testing
-      await login('student@example.com', 'password123');
+      let demoEmail = '';
+      let demoPassword = 'password123';
+      
+      switch (role) {
+        case 'student':
+          demoEmail = 'student@example.com';
+          break;
+        case 'teacher':
+          demoEmail = 'teacher@example.com';
+          break;
+        case 'parent':
+          demoEmail = 'parent@example.com';
+          break;
+        case 'admin':
+          demoEmail = 'admin@example.com';
+          break;
+      }
+      
+      await login(demoEmail, demoPassword);
     } catch (err) {
       setError('Demo login failed');
       console.error(err);
@@ -213,15 +222,72 @@ const Login: React.FC = () => {
           </CardContent>
           <CardFooter className="flex flex-col">
             <p className="text-xs text-gray-300 mt-4">
-              Use your Supabase credentials to log in. For testing, you can use the demo login below.
+              For testing, you can use one of the demo logins below.
             </p>
-            <Button
-              variant="outline"
-              className="w-full mt-4 border-white/20 text-white hover:bg-white/10"
-              onClick={handleDemoLogin}
-            >
-              Demo Login
-            </Button>
+            <Tabs defaultValue="student" className="w-full mt-4">
+              <TabsList className="grid grid-cols-4 mb-2 bg-white/10">
+                <TabsTrigger value="student" className="text-xs">Student</TabsTrigger>
+                <TabsTrigger value="teacher" className="text-xs">Teacher</TabsTrigger>
+                <TabsTrigger value="parent" className="text-xs">Parent</TabsTrigger>
+                <TabsTrigger value="admin" className="text-xs">Admin</TabsTrigger>
+              </TabsList>
+              <TabsContent value="student">
+                <div className="text-center mb-2">
+                  <p className="text-xs text-gray-300">Email: student@example.com</p>
+                  <p className="text-xs text-gray-300">Password: password123</p>
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full border-white/20 text-white hover:bg-white/10"
+                  onClick={() => handleDemoLogin('student')}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Logging in...' : 'Login as Student'}
+                </Button>
+              </TabsContent>
+              <TabsContent value="teacher">
+                <div className="text-center mb-2">
+                  <p className="text-xs text-gray-300">Email: teacher@example.com</p>
+                  <p className="text-xs text-gray-300">Password: password123</p>
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full border-white/20 text-white hover:bg-white/10"
+                  onClick={() => handleDemoLogin('teacher')}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Logging in...' : 'Login as Teacher'}
+                </Button>
+              </TabsContent>
+              <TabsContent value="parent">
+                <div className="text-center mb-2">
+                  <p className="text-xs text-gray-300">Email: parent@example.com</p>
+                  <p className="text-xs text-gray-300">Password: password123</p>
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full border-white/20 text-white hover:bg-white/10"
+                  onClick={() => handleDemoLogin('parent')}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Logging in...' : 'Login as Parent'}
+                </Button>
+              </TabsContent>
+              <TabsContent value="admin">
+                <div className="text-center mb-2">
+                  <p className="text-xs text-gray-300">Email: admin@example.com</p>
+                  <p className="text-xs text-gray-300">Password: password123</p>
+                </div>
+                <Button
+                  variant="outline" 
+                  className="w-full border-white/20 text-white hover:bg-white/10"
+                  onClick={() => handleDemoLogin('admin')}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Logging in...' : 'Login as Admin'}
+                </Button>
+              </TabsContent>
+            </Tabs>
           </CardFooter>
         </Card>
       </div>
