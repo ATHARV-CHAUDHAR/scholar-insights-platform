@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { supabase } from '@/integrations/supabase/client';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -17,10 +18,26 @@ const Login: React.FC = () => {
   const [animationLoaded, setAnimationLoaded] = useState(false);
   const [loginStep, setLoginStep] = useState('email');
   const { login, isAuthenticated, user } = useAuth();
+  const [debugInfo, setDebugInfo] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = 'AVA Ed. Tech. - Login';
     const timer = setTimeout(() => setAnimationLoaded(true), 300);
+
+    // Check Supabase configuration
+    const checkSupabase = async () => {
+      try {
+        const projectUrl = supabase.supabaseUrl;
+        // Just check if we can get the URL, don't log the API key
+        setDebugInfo(`Connected to Supabase at: ${projectUrl}`);
+      } catch (e) {
+        console.error('Supabase initialization error:', e);
+        setDebugInfo('Error connecting to Supabase. Check console for details.');
+      }
+    };
+    
+    checkSupabase();
+    
     return () => clearTimeout(timer);
   }, []);
 
@@ -74,6 +91,22 @@ const Login: React.FC = () => {
     return <Navigate to="/" replace />;
   }
 
+  // Helper function for demo login
+  const handleDemoLogin = async () => {
+    setError('');
+    setIsLoading(true);
+    
+    try {
+      // Use demo credentials for testing
+      await login('student@example.com', 'password123');
+    } catch (err) {
+      setError('Demo login failed');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 px-4 relative overflow-hidden">
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-900 via-gray-900 to-gray-800 opacity-80"></div>
@@ -88,6 +121,12 @@ const Login: React.FC = () => {
           <h1 className="mt-4 text-4xl font-bold text-white animate-fade-in">AVA Ed. Tech.</h1>
           <p className="mt-2 text-gray-300 animate-fade-in">Sign in to your account</p>
         </div>
+
+        {debugInfo && (
+          <div className="mb-4 text-center">
+            <p className="text-xs text-gray-300">{debugInfo}</p>
+          </div>
+        )}
 
         <Card className="backdrop-blur-sm bg-white/10 border-white/20 shadow-xl transition-all duration-500 hover:shadow-2xl hover:bg-white/15">
           <CardHeader className="space-y-1">
@@ -176,8 +215,15 @@ const Login: React.FC = () => {
           </CardContent>
           <CardFooter className="flex flex-col">
             <p className="text-xs text-gray-300 mt-4">
-              Please use your Supabase credentials to log in.
+              Use your Supabase credentials to log in. For testing, you can use the demo login below.
             </p>
+            <Button
+              variant="outline"
+              className="w-full mt-4 border-white/20 text-white hover:bg-white/10"
+              onClick={handleDemoLogin}
+            >
+              Demo Login
+            </Button>
           </CardFooter>
         </Card>
       </div>

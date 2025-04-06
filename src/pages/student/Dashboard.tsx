@@ -7,6 +7,7 @@ import AttendanceChart from "@/components/dashboard/AttendanceChart";
 import { Book, Calendar, GraduationCap, Award, Clock } from "lucide-react";
 import { calculateAttendancePercentage, calculateAverageMarks, getMockSubjects } from '@/utils/mockData';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -16,6 +17,22 @@ const StudentDashboard = () => {
 
   useEffect(() => {
     document.title = 'Student Dashboard | AVA Ed. Tech.';
+    
+    // Log Supabase connection status
+    console.log('Supabase client initialized:', supabase);
+    console.log('Current user:', user);
+
+    // Check if we can connect to Supabase
+    const checkConnection = async () => {
+      try {
+        const { data, error } = await supabase.from('subjects').select('*').limit(1);
+        console.log('Supabase connection test:', { data, error });
+      } catch (e) {
+        console.error('Supabase connection test failed:', e);
+      }
+    };
+    
+    checkConnection();
     
     // Fetch data or use mock data
     const fetchData = async () => {
@@ -63,7 +80,7 @@ const StudentDashboard = () => {
       <div className="flex flex-col">
         <h1 className="text-3xl font-bold tracking-tight">Student Dashboard</h1>
         <p className="text-muted-foreground">
-          Welcome back, {user?.username || user?.name}! Here's your learning progress.
+          Welcome back, {user?.username || user?.name || 'Student'}! Here's your learning progress.
         </p>
       </div>
 
