@@ -1,11 +1,10 @@
-
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { Student, Attendance, Subject, Class, Division, Result, Teacher, User, PerformanceMetrics } from '@/types';
 
 // User related functions
 export const getUserById = async (userId: string) => {
   const { data, error } = await supabase
-    .from('Users')
+    .from('users')
     .select('*')
     .eq('user_id', userId)
     .single();
@@ -17,11 +16,11 @@ export const getUserById = async (userId: string) => {
 // Student related functions
 export const getStudentById = async (studentId: string) => {
   const { data, error } = await supabase
-    .from('Students')
+    .from('students')
     .select(`
       *,
-      Users (*),
-      Classes (*)
+      users (*),
+      classes (*)
     `)
     .eq('student_id', studentId)
     .single();
@@ -32,10 +31,10 @@ export const getStudentById = async (studentId: string) => {
 
 export const getStudentsByClass = async (classId: string) => {
   const { data, error } = await supabase
-    .from('Students')
+    .from('students')
     .select(`
       *,
-      Users (*)
+      users (*)
     `)
     .eq('class_id', classId);
 
@@ -46,10 +45,10 @@ export const getStudentsByClass = async (classId: string) => {
 // Teacher related functions
 export const getTeacherById = async (teacherId: string) => {
   const { data, error } = await supabase
-    .from('Teachers')
+    .from('teachers')
     .select(`
       *,
-      Users (*)
+      users (*)
     `)
     .eq('teacher_id', teacherId)
     .single();
@@ -61,10 +60,10 @@ export const getTeacherById = async (teacherId: string) => {
 // Attendance related functions
 export const getAttendanceByStudent = async (studentId: string) => {
   const { data, error } = await supabase
-    .from('Attendance')
+    .from('attendance')
     .select(`
       *,
-      Subjects (*)
+      subjects (*)
     `)
     .eq('student_id', studentId)
     .order('class_date', { ascending: false });
@@ -75,7 +74,7 @@ export const getAttendanceByStudent = async (studentId: string) => {
 
 export const getAttendanceByClassAndDate = async (classId: string, date: string) => {
   const { data: students, error: studentsError } = await supabase
-    .from('Students')
+    .from('students')
     .select('*')
     .eq('class_id', classId);
 
@@ -84,11 +83,11 @@ export const getAttendanceByClassAndDate = async (classId: string, date: string)
   const studentIds = students.map(student => student.student_id);
 
   const { data, error } = await supabase
-    .from('Attendance')
+    .from('attendance')
     .select(`
       *,
-      Students (*),
-      Subjects (*)
+      students (*),
+      subjects (*)
     `)
     .in('student_id', studentIds)
     .eq('class_date', date);
@@ -99,7 +98,7 @@ export const getAttendanceByClassAndDate = async (classId: string, date: string)
 
 export const saveAttendance = async (attendanceData: Partial<Attendance>[]) => {
   const { data, error } = await supabase
-    .from('Attendance')
+    .from('attendance')
     .upsert(attendanceData, { onConflict: 'student_id,class_date,subject_id' });
 
   if (error) throw error;
@@ -109,7 +108,7 @@ export const saveAttendance = async (attendanceData: Partial<Attendance>[]) => {
 // Subject related functions
 export const getSubjects = async () => {
   const { data, error } = await supabase
-    .from('Subjects')
+    .from('subjects')
     .select('*');
 
   if (error) throw error;
@@ -118,7 +117,7 @@ export const getSubjects = async () => {
 
 export const getSubjectById = async (subjectId: string) => {
   const { data, error } = await supabase
-    .from('Subjects')
+    .from('subjects')
     .select('*')
     .eq('subject_id', subjectId)
     .single();
@@ -129,11 +128,11 @@ export const getSubjectById = async (subjectId: string) => {
 
 export const getSubjectsByTeacher = async (teacherId: string) => {
   const { data, error } = await supabase
-    .from('Teacher_Subject_Assoc')
+    .from('teacher_subject_assoc')
     .select(`
       *,
-      Subjects (*),
-      Divisions (*)
+      subjects (*),
+      divisions (*)
     `)
     .eq('teacher_id', teacherId);
 
@@ -144,7 +143,7 @@ export const getSubjectsByTeacher = async (teacherId: string) => {
 // Class related functions
 export const getClasses = async () => {
   const { data, error } = await supabase
-    .from('Classes')
+    .from('classes')
     .select('*');
 
   if (error) throw error;
@@ -153,10 +152,10 @@ export const getClasses = async () => {
 
 export const getDivisions = async () => {
   const { data, error } = await supabase
-    .from('Divisions')
+    .from('divisions')
     .select(`
       *,
-      Classes (*)
+      classes (*)
     `);
 
   if (error) throw error;
@@ -166,11 +165,11 @@ export const getDivisions = async () => {
 // Results related functions
 export const getResultsByStudent = async (studentId: string) => {
   const { data, error } = await supabase
-    .from('Results')
+    .from('results')
     .select(`
       *,
-      Exams (*),
-      Subjects (*)
+      exams (*),
+      subjects (*)
     `)
     .eq('student_id', studentId);
 
@@ -180,11 +179,11 @@ export const getResultsByStudent = async (studentId: string) => {
 
 export const getResultsByExam = async (examId: string) => {
   const { data, error } = await supabase
-    .from('Results')
+    .from('results')
     .select(`
       *,
-      Students (*),
-      Subjects (*)
+      students (*),
+      subjects (*)
     `)
     .eq('exam_id', examId);
 
@@ -195,10 +194,10 @@ export const getResultsByExam = async (examId: string) => {
 // Performance metrics
 export const getPerformanceMetrics = async (studentId: string) => {
   const { data, error } = await supabase
-    .from('Performance_Metrics')
+    .from('performance_metrics')
     .select(`
       *,
-      Subjects (*)
+      subjects (*)
     `)
     .eq('student_id', studentId);
 
@@ -211,10 +210,10 @@ export const getAttendanceStatsBySubject = async (studentId: string) => {
   // This is a more complex query that would typically be handled by a backend function
   // For now, we'll fetch all attendance records and process them client-side
   const { data, error } = await supabase
-    .from('Attendance')
+    .from('attendance')
     .select(`
       *,
-      Subjects (*)
+      subjects (*)
     `)
     .eq('student_id', studentId);
 
@@ -228,7 +227,7 @@ export const getAttendanceStatsBySubject = async (studentId: string) => {
     if (!statsBySubject[subjectId]) {
       statsBySubject[subjectId] = {
         subjectId,
-        subjectName: attendance.Subjects.subject_name,
+        subjectName: attendance.subjects.subject_name,
         total: 0,
         present: 0,
         absent: 0,

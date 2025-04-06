@@ -27,25 +27,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (session) {
           // Get user profile data
           const { data: userData, error: userError } = await supabase
-            .from('Users')
+            .from('users')
             .select('*')
             .eq('user_id', session.user.id)
             .single();
 
           if (userError) throw userError;
-
-          setUser({
-            id: userData.user_id,
-            username: userData.username,
-            email: userData.email,
-            is_active: userData.is_active,
-            role: userData.role_name as UserRole,
-            avatar: userData.avatar,
-            created_at: userData.created_at,
-            updated_at: userData.updated_at,
-            // For backward compatibility
-            name: userData.username
-          });
+          
+          if (userData) {
+            setUser({
+              id: userData.user_id,
+              username: userData.username,
+              email: userData.email,
+              is_active: userData.is_active,
+              role: userData.role_name as UserRole,
+              avatar: userData.avatar,
+              created_at: userData.created_at,
+              updated_at: userData.updated_at,
+              // For backward compatibility
+              name: userData.username
+            });
+          }
         }
       } catch (error) {
         console.error('Error checking authentication:', error);
@@ -62,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (event === 'SIGNED_IN' && session) {
           // Get user profile data
           const { data: userData, error: userError } = await supabase
-            .from('Users')
+            .from('users')
             .select('*')
             .eq('user_id', session.user.id)
             .single();
@@ -72,18 +74,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return;
           }
 
-          setUser({
-            id: userData.user_id,
-            username: userData.username,
-            email: userData.email,
-            is_active: userData.is_active,
-            role: userData.role_name as UserRole,
-            avatar: userData.avatar,
-            created_at: userData.created_at,
-            updated_at: userData.updated_at,
-            // For backward compatibility
-            name: userData.username
-          });
+          if (userData) {
+            setUser({
+              id: userData.user_id,
+              username: userData.username,
+              email: userData.email,
+              is_active: userData.is_active,
+              role: userData.role_name as UserRole,
+              avatar: userData.avatar,
+              created_at: userData.created_at,
+              updated_at: userData.updated_at,
+              // For backward compatibility
+              name: userData.username
+            });
+          }
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
         }
@@ -113,38 +117,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Get user profile data
-      const { data: userData, error: userError } = await supabase
-        .from('Users')
-        .select('*')
-        .eq('user_id', data.user.id)
-        .single();
+      if (data.user) {
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('user_id', data.user.id)
+          .single();
 
-      if (userError) {
-        toast({
-          title: 'Error retrieving user profile',
-          description: userError.message,
-          variant: 'destructive',
-        });
-        throw userError;
+        if (userError) {
+          toast({
+            title: 'Error retrieving user profile',
+            description: userError.message,
+            variant: 'destructive',
+          });
+          throw userError;
+        }
+
+        if (userData) {
+          setUser({
+            id: userData.user_id,
+            username: userData.username,
+            email: userData.email,
+            is_active: userData.is_active,
+            role: userData.role_name as UserRole,
+            avatar: userData.avatar,
+            created_at: userData.created_at,
+            updated_at: userData.updated_at,
+            // For backward compatibility
+            name: userData.username
+          });
+
+          toast({
+            title: 'Login successful',
+            description: `Welcome back, ${userData.username}!`,
+          });
+        }
       }
-
-      setUser({
-        id: userData.user_id,
-        username: userData.username,
-        email: userData.email,
-        is_active: userData.is_active,
-        role: userData.role_name as UserRole,
-        avatar: userData.avatar,
-        created_at: userData.created_at,
-        updated_at: userData.updated_at,
-        // For backward compatibility
-        name: userData.username
-      });
-
-      toast({
-        title: 'Login successful',
-        description: `Welcome back, ${userData.username}!`,
-      });
     } catch (error) {
       console.error('Login error:', error);
     } finally {

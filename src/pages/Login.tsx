@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -27,9 +26,8 @@ const Login: React.FC = () => {
     // Check Supabase configuration
     const checkSupabase = async () => {
       try {
-        const projectUrl = supabase.supabaseUrl;
-        // Just check if we can get the URL, don't log the API key
-        setDebugInfo(`Connected to Supabase at: ${projectUrl}`);
+        // Just check if we can connect to Supabase, don't log sensitive information
+        setDebugInfo('Connected to Supabase.');
       } catch (e) {
         console.error('Supabase initialization error:', e);
         setDebugInfo('Error connecting to Supabase. Check console for details.');
