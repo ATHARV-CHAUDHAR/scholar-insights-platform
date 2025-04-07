@@ -1,14 +1,13 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, UserRole } from '@/types';
-import { supabase } from '@/integrations/supabase/client';
+import { users } from '@/utils/mockData';
 import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: User | null;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => void;
   isAuthenticated: boolean;
 }
 
@@ -16,289 +15,76 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
 
+  // Check for saved authentication on component mount
   useEffect(() => {
-    const checkUser = async () => {
+    const storedUser = localStorage.getItem('si-user');
+    if (storedUser) {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session) {
-          // Get user profile data
-          const { data: userData, error: userError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('user_id', Number(session.user.id))
-            .single();
-
-          if (userError) throw userError;
-          
-          if (userData) {
-            // Determine role based on user tables
-            let userRole: UserRole = 'Student'; // Default role
-            
-            // Check if user is a teacher
-            const { data: teacherData } = await supabase
-              .from('teachers')
-              .select('*')
-              .eq('user_id', userData.user_id)
-              .single();
-              
-            if (teacherData) {
-              userRole = 'Teacher';
-            } else {
-              // Check if user is a parent
-              const { data: parentData } = await supabase
-                .from('parents')
-                .select('*')
-                .eq('user_id', userData.user_id)
-                .single();
-                
-              if (parentData) {
-                userRole = 'Parent';
-              } else {
-                // Check if user is an admin (using role association)
-                const { data: roleData } = await supabase
-                  .from('assoc_user_roles')
-                  .select('*, roles(*)')
-                  .eq('user_id', userData.user_id)
-                  .single();
-                  
-                if (roleData?.roles?.role_name === 'Admin') {
-                  userRole = 'Admin';
-                }
-              }
-            }
-
-            setUser({
-              id: String(userData.user_id),
-              username: userData.username,
-              email: userData.email,
-              is_active: userData.is_active,
-              role: userRole,
-              avatar: null, // Default avatar to null as it doesn't exist in our schema
-              created_at: userData.created_at,
-              updated_at: userData.updated_at,
-              // For backward compatibility
-              name: userData.username
-            });
-          }
-        }
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        setIsAuthenticated(true);
       } catch (error) {
-        console.error('Error checking authentication:', error);
-      } finally {
-        setIsLoading(false);
+        console.error('Failed to parse stored user:', error);
+        localStorage.removeItem('si-user');
       }
-    };
-
-    checkUser();
-
-    // Set up auth listener
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-          // Get user profile data
-          const { data: userData, error: userError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('user_id', Number(session.user.id))
-            .single();
-
-          if (userError) {
-            console.error('Error fetching user data:', userError);
-            return;
-          }
-
-          if (userData) {
-            // Determine role based on user tables
-            let userRole: UserRole = 'Student'; // Default role
-            
-            // Check if user is a teacher
-            const { data: teacherData } = await supabase
-              .from('teachers')
-              .select('*')
-              .eq('user_id', userData.user_id)
-              .single();
-              
-            if (teacherData) {
-              userRole = 'Teacher';
-            } else {
-              // Check if user is a parent
-              const { data: parentData } = await supabase
-                .from('parents')
-                .select('*')
-                .eq('user_id', userData.user_id)
-                .single();
-                
-              if (parentData) {
-                userRole = 'Parent';
-              } else {
-                // Check if user is an admin (using role association)
-                const { data: roleData } = await supabase
-                  .from('assoc_user_roles')
-                  .select('*, roles(*)')
-                  .eq('user_id', userData.user_id)
-                  .single();
-                  
-                if (roleData?.roles?.role_name === 'Admin') {
-                  userRole = 'Admin';
-                }
-              }
-            }
-
-            setUser({
-              id: String(userData.user_id),
-              username: userData.username,
-              email: userData.email,
-              is_active: userData.is_active,
-              role: userRole,
-              avatar: null, // Default avatar to null as it doesn't exist in our schema
-              created_at: userData.created_at,
-              updated_at: userData.updated_at,
-              // For backward compatibility
-              name: userData.username
-            });
-          }
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
-        }
-      }
-    );
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+    }
   }, []);
 
-  const login = async (email: string, password: string) => {
-    setIsLoading(true);
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
+      // Simulate API request delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // This is just a mock authentication - in a real app, you'd verify credentials on the server
+      // For demo purposes, we'll just check the email against our mock data
+      // and accept any password (since we're not storing real passwords)
+      const foundUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      
+      if (foundUser) {
+        setUser(foundUser);
+        setIsAuthenticated(true);
+        localStorage.setItem('si-user', JSON.stringify(foundUser));
         toast({
-          title: 'Login failed',
-          description: error.message,
-          variant: 'destructive',
+          title: "Login successful",
+          description: `Welcome back, ${foundUser.name}!`,
         });
-        throw error;
-      }
-
-      // Get user profile data
-      if (data.user) {
-        const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('user_id', Number(data.user.id))
-          .single();
-
-        if (userError) {
-          toast({
-            title: 'Error retrieving user profile',
-            description: userError.message,
-            variant: 'destructive',
-          });
-          throw userError;
-        }
-
-        if (userData) {
-          // Determine role based on user tables
-          let userRole: UserRole = 'Student'; // Default role
-          
-          // Check if user is a teacher
-          const { data: teacherData } = await supabase
-            .from('teachers')
-            .select('*')
-            .eq('user_id', userData.user_id)
-            .single();
-            
-          if (teacherData) {
-            userRole = 'Teacher';
-          } else {
-            // Check if user is a parent
-            const { data: parentData } = await supabase
-              .from('parents')
-              .select('*')
-              .eq('user_id', userData.user_id)
-              .single();
-              
-            if (parentData) {
-              userRole = 'Parent';
-            } else {
-              // Check if user is an admin (using role association)
-              const { data: roleData } = await supabase
-                .from('assoc_user_roles')
-                .select('*, roles(*)')
-                .eq('user_id', userData.user_id)
-                .single();
-                
-              if (roleData?.roles?.role_name === 'Admin') {
-                userRole = 'Admin';
-              }
-            }
-          }
-
-          setUser({
-            id: String(userData.user_id),
-            username: userData.username,
-            email: userData.email,
-            is_active: userData.is_active,
-            role: userRole,
-            avatar: null, // Default avatar to null as it doesn't exist in our schema
-            created_at: userData.created_at,
-            updated_at: userData.updated_at,
-            // For backward compatibility
-            name: userData.username
-          });
-
-          toast({
-            title: 'Login successful',
-            description: `Welcome back, ${userData.username}!`,
-          });
-        }
+        return true;
+      } else {
+        toast({
+          title: "Login failed",
+          description: "Invalid email or password. Please try again.",
+          variant: "destructive",
+        });
+        return false;
       }
     } catch (error) {
-      console.error('Login error:', error);
-    } finally {
-      setIsLoading(false);
+      toast({
+        title: "Login error",
+        description: "An error occurred during login. Please try again.",
+        variant: "destructive",
+      });
+      return false;
     }
   };
 
-  const logout = async () => {
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      setUser(null);
-      toast({
-        title: 'Logout successful',
-        description: 'You have been logged out.',
-      });
-    } catch (error) {
-      console.error('Logout error:', error);
-      toast({
-        title: 'Logout failed',
-        description: 'An error occurred during logout.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  const logout = () => {
+    setUser(null);
+    setIsAuthenticated(false);
+    localStorage.removeItem('si-user');
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
   };
 
-  const value = {
-    user,
-    isLoading,
-    login,
-    logout,
-    isAuthenticated: !!user,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

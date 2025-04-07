@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -23,11 +22,11 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
   // If allowedRoles is specified, check if user has an allowed role
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
     // Redirect to a default dashboard based on user role
-    if (user.role === 'Admin') {
+    if (user.role === 'admin') {
       return <Navigate to="/admin/dashboard" replace />;
-    } else if (user.role === 'Teacher') {
+    } else if (user.role === 'teacher') {
       return <Navigate to="/teacher/dashboard" replace />;
-    } else if (user.role === 'Parent') {
+    } else if (user.role === 'parent') {
       return <Navigate to="/parent/dashboard" replace />;
     }
     

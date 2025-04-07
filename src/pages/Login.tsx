@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -16,17 +15,15 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [animationLoaded, setAnimationLoaded] = useState(false);
-  const [loginStep, setLoginStep] = useState('email');
+  const [loginStep, setLoginStep] = useState('email'); // 'email' or 'password'
   const { login, isAuthenticated, user } = useAuth();
-  const [debugInfo, setDebugInfo] = useState<string | null>(null);
 
   useEffect(() => {
+    // Ensure the title is set correctly
     document.title = 'AVA Ed. Tech. - Login';
+    
+    // Set animation as loaded after a slight delay to ensure smooth transition
     const timer = setTimeout(() => setAnimationLoaded(true), 300);
-    
-    // Clear any debug info
-    setDebugInfo('Ready to login. Use demo logins below for testing.');
-    
     return () => clearTimeout(timer);
   }, []);
 
@@ -37,6 +34,7 @@ const Login: React.FC = () => {
       return;
     }
     
+    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError('Please enter a valid email address');
@@ -44,6 +42,7 @@ const Login: React.FC = () => {
     }
     
     setError('');
+    // Animate to password step
     setLoginStep('password');
   };
 
@@ -53,7 +52,10 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      const success = await login(email, password);
+      if (!success) {
+        setError('Invalid email or password');
+      }
     } catch (err) {
       setError('An error occurred during login');
       console.error(err);
@@ -62,60 +64,28 @@ const Login: React.FC = () => {
     }
   };
 
+  // Go back to email step
   const handleBackToEmail = () => {
     setLoginStep('email');
     setError('');
   };
 
+  // If already authenticated, redirect to the appropriate dashboard
   if (isAuthenticated && user) {
-    if (user.role === 'Admin') {
+    if (user.role === 'admin') {
       return <Navigate to="/admin/dashboard" replace />;
-    } else if (user.role === 'Teacher') {
+    } else if (user.role === 'teacher') {
       return <Navigate to="/teacher/dashboard" replace />;
-    } else if (user.role === 'Parent') {
+    } else if (user.role === 'parent') {
       return <Navigate to="/parent/dashboard" replace />;
-    } else if (user.role === 'Student') {
-      return <Navigate to="/student/dashboard" replace />;
     }
+    // Default fallback
     return <Navigate to="/" replace />;
   }
 
-  // Helper functions for demo logins
-  const handleDemoLogin = async (role: 'student' | 'teacher' | 'parent' | 'admin') => {
-    setError('');
-    setIsLoading(true);
-    
-    try {
-      // Use demo credentials for testing
-      let demoEmail = '';
-      let demoPassword = 'password123';
-      
-      switch (role) {
-        case 'student':
-          demoEmail = 'student@example.com';
-          break;
-        case 'teacher':
-          demoEmail = 'teacher@example.com';
-          break;
-        case 'parent':
-          demoEmail = 'parent@example.com';
-          break;
-        case 'admin':
-          demoEmail = 'admin@example.com';
-          break;
-      }
-      
-      await login(demoEmail, demoPassword);
-    } catch (err) {
-      setError('Demo login failed');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 px-4 relative overflow-hidden">
+      {/* Static background gradient instead of LoginAnimation */}
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-900 via-gray-900 to-gray-800 opacity-80"></div>
       
       <div className={`w-full max-w-md relative z-10 transition-all duration-1000 transform ${animationLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
@@ -128,12 +98,6 @@ const Login: React.FC = () => {
           <h1 className="mt-4 text-4xl font-bold text-white animate-fade-in">AVA Ed. Tech.</h1>
           <p className="mt-2 text-gray-300 animate-fade-in">Sign in to your account</p>
         </div>
-
-        {debugInfo && (
-          <div className="mb-4 text-center">
-            <p className="text-xs text-gray-300">{debugInfo}</p>
-          </div>
-        )}
 
         <Card className="backdrop-blur-sm bg-white/10 border-white/20 shadow-xl transition-all duration-500 hover:shadow-2xl hover:bg-white/15">
           <CardHeader className="space-y-1">
@@ -222,72 +186,14 @@ const Login: React.FC = () => {
           </CardContent>
           <CardFooter className="flex flex-col">
             <p className="text-xs text-gray-300 mt-4">
-              For testing, you can use one of the demo logins below.
+              For demo purposes, you can use:
             </p>
-            <Tabs defaultValue="student" className="w-full mt-4">
-              <TabsList className="grid grid-cols-4 mb-2 bg-white/10">
-                <TabsTrigger value="student" className="text-xs">Student</TabsTrigger>
-                <TabsTrigger value="teacher" className="text-xs">Teacher</TabsTrigger>
-                <TabsTrigger value="parent" className="text-xs">Parent</TabsTrigger>
-                <TabsTrigger value="admin" className="text-xs">Admin</TabsTrigger>
-              </TabsList>
-              <TabsContent value="student">
-                <div className="text-center mb-2">
-                  <p className="text-xs text-gray-300">Email: student@example.com</p>
-                  <p className="text-xs text-gray-300">Password: password123</p>
-                </div>
-                <Button
-                  variant="outline"
-                  className="w-full border-white/20 text-white hover:bg-white/10"
-                  onClick={() => handleDemoLogin('student')}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Logging in...' : 'Login as Student'}
-                </Button>
-              </TabsContent>
-              <TabsContent value="teacher">
-                <div className="text-center mb-2">
-                  <p className="text-xs text-gray-300">Email: teacher@example.com</p>
-                  <p className="text-xs text-gray-300">Password: password123</p>
-                </div>
-                <Button
-                  variant="outline"
-                  className="w-full border-white/20 text-white hover:bg-white/10"
-                  onClick={() => handleDemoLogin('teacher')}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Logging in...' : 'Login as Teacher'}
-                </Button>
-              </TabsContent>
-              <TabsContent value="parent">
-                <div className="text-center mb-2">
-                  <p className="text-xs text-gray-300">Email: parent@example.com</p>
-                  <p className="text-xs text-gray-300">Password: password123</p>
-                </div>
-                <Button
-                  variant="outline"
-                  className="w-full border-white/20 text-white hover:bg-white/10"
-                  onClick={() => handleDemoLogin('parent')}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Logging in...' : 'Login as Parent'}
-                </Button>
-              </TabsContent>
-              <TabsContent value="admin">
-                <div className="text-center mb-2">
-                  <p className="text-xs text-gray-300">Email: admin@example.com</p>
-                  <p className="text-xs text-gray-300">Password: password123</p>
-                </div>
-                <Button
-                  variant="outline" 
-                  className="w-full border-white/20 text-white hover:bg-white/10"
-                  onClick={() => handleDemoLogin('admin')}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Logging in...' : 'Login as Admin'}
-                </Button>
-              </TabsContent>
-            </Tabs>
+            <div className="text-xs text-gray-300 mt-1 space-y-1">
+              <p>Admin: johndoe@example.com</p>
+              <p>Teacher: janesmith@example.com</p>
+              <p>Parent: robertjohnson@example.com</p>
+              <p>(Any password will work)</p>
+            </div>
           </CardFooter>
         </Card>
       </div>

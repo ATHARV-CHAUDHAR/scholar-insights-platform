@@ -1,395 +1,410 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import Layout from '@/components/Layout';
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle 
+} from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
-import { toast } from '@/hooks/use-toast';
-import { getDivisions, getSubjectsByTeacher, getStudentsByClass, saveAttendance } from '@/services/dataService';
-import { useAuth } from '@/contexts/AuthContext';
-import { toNumberId, toStringId } from '@/utils/typeConversions';
+import { CheckCircle2, XCircle, AlertCircle, SaveIcon, XIcon, CheckIcon } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { 
+  students, 
+  classes, 
+  subjects,
+  attendance as mockAttendance 
+} from '@/utils/mockData';
 
-interface AttendanceRecord {
-  student_id: number;
-  status: 'Present' | 'Absent' | 'Late';
-}
-
-const Attendance = () => {
-  const { user } = useAuth();
-  const [divisions, setDivisions] = useState<any[]>([]);
-  const [selectedDivision, setSelectedDivision] = useState<string>('');
-  const [subjects, setSubjects] = useState<any[]>([]);
-  const [selectedSubject, setSelectedSubject] = useState<string>('');
-  const [students, setStudents] = useState<any[]>([]);
-  const [attendanceDate, setAttendanceDate] = useState<Date>(new Date());
-  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [viewMode, setViewMode] = useState<'entry' | 'history'>('entry');
-
-  useEffect(() => {
-    const fetchDivisions = async () => {
-      try {
-        const divisionsData = await getDivisions();
-        setDivisions(divisionsData);
-      } catch (error) {
-        console.error('Error fetching divisions:', error);
-        toast({
-          title: 'Failed to load divisions',
-          description: 'Please try again later.',
-          variant: 'destructive',
-        });
-      }
-    };
-
-    fetchDivisions();
-  }, []);
-
-  useEffect(() => {
-    const fetchSubjects = async () => {
-      if (!user?.id) return;
+const TeacherAttendance: React.FC = () => {
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedClass, setSelectedClass] = useState<string>(classes[0].id);
+  const [selectedSubject, setSelectedSubject] = useState<string>(subjects[0].id);
+  const [attendanceData, setAttendanceData] = useState<
+    Array<{ studentId: string; status: 'present' | 'absent' | 'late' }>
+  >([]);
+  const [showAttendanceDialog, setShowAttendanceDialog] = useState(false);
+  const { toast } = useToast();
+  
+  const filteredStudents = students.filter(student => 
+    classes.find(c => c.id === selectedClass)?.name === student.class && 
+    classes.find(c => c.id === selectedClass)?.section === student.section
+  );
+  
+  // Prepare for marking attendance
+  const handleMarkAttendance = () => {
+    // Initialize attendance data for all students in the selected class
+    const initialAttendance = filteredStudents.map(student => {
+      // Try to find existing attendance for this student, date, and subject
+      const existingAttendance = mockAttendance.find(a => 
+        a.studentId === student.id && 
+        a.date === format(selectedDate || new Date(), 'yyyy-MM-dd') &&
+        a.subjectId === selectedSubject
+      );
       
-      try {
-        const subjectsData = await getSubjectsByTeacher(user.id);
-        setSubjects(subjectsData);
-      } catch (error) {
-        console.error('Error fetching subjects:', error);
-        toast({
-          title: 'Failed to load subjects',
-          description: 'Please try again later.',
-          variant: 'destructive',
-        });
-      }
-    };
-
-    fetchSubjects();
-  }, [user]);
-
-  useEffect(() => {
-    const fetchStudents = async () => {
-      if (!selectedDivision) return;
-
-      try {
-        const division = divisions.find(d => d.division_id.toString() === selectedDivision);
-        if (!division) return;
-        
-        const studentsData = await getStudentsByClass(division.class_id.toString());
-        setStudents(studentsData);
-        
-        // Initialize attendance records for all students
-        const initialAttendance = studentsData.map(student => ({
-          student_id: student.student_id,
-          status: 'Present' as 'Present' | 'Absent' | 'Late'
-        }));
-        
-        setAttendanceRecords(initialAttendance);
-      } catch (error) {
-        console.error('Error fetching students:', error);
-        toast({
-          title: 'Failed to load students',
-          description: 'Please try again later.',
-          variant: 'destructive',
-        });
-      }
-    };
-
-    fetchStudents();
-  }, [selectedDivision, divisions]);
-
-  const handleDivisionChange = (value: string) => {
-    setSelectedDivision(value);
-    setSelectedSubject('');
-  };
-
-  const handleSubjectChange = (value: string) => {
-    setSelectedSubject(value);
-  };
-
-  const handleDateChange = (date: Date | undefined) => {
-    if (date) {
-      setAttendanceDate(date);
-    }
-  };
-
-  const handleStatusChange = (studentId: number, status: 'Present' | 'Absent' | 'Late') => {
-    setAttendanceRecords(prevRecords => {
-      return prevRecords.map(record => {
-        if (record.student_id === studentId) {
-          return { ...record, status };
-        }
-        return record;
-      });
+      return {
+        studentId: student.id,
+        status: existingAttendance?.status || 'present',
+      };
     });
-  };
-
-  const handleSubmitAttendance = async () => {
-    if (!selectedSubject || !selectedDivision || !attendanceDate) {
-      toast({
-        title: 'Missing information',
-        description: 'Please select division, subject, and date.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const formattedDate = format(attendanceDate, 'yyyy-MM-dd');
-      
-      const attendanceData = attendanceRecords.map(record => ({
-        student_id: record.student_id,
-        subject_id: Number(selectedSubject),
-        class_date: formattedDate,
-        status: record.status
-      }));
-
-      await saveAttendance(attendanceData);
-      
-      toast({
-        title: 'Attendance saved',
-        description: `Attendance for ${formattedDate} has been saved successfully.`,
-      });
-    } catch (error) {
-      console.error('Error saving attendance:', error);
-      toast({
-        title: 'Failed to save attendance',
-        description: 'Please try again later.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const getStatusButtonClass = (status: string, currentStatus: string) => {
-    const baseClass = 'px-3 py-1 rounded-md text-xs font-medium transition-colors';
     
-    if (status === currentStatus) {
-      switch (status) {
-        case 'Present':
-          return `${baseClass} bg-green-500 text-white`;
-        case 'Absent':
-          return `${baseClass} bg-red-500 text-white`;
-        case 'Late':
-          return `${baseClass} bg-yellow-500 text-white`;
-      }
-    }
-    
-    return `${baseClass} bg-gray-200 text-gray-700 hover:bg-gray-300`;
+    setAttendanceData(initialAttendance);
+    setShowAttendanceDialog(true);
   };
-
-  // Filter subjects based on selected division
-  const filteredSubjects = selectedDivision
-    ? subjects.filter(subject => subject.division_id.toString() === selectedDivision)
-    : [];
+  
+  // Update a student's attendance status
+  const updateAttendanceStatus = (studentId: string, status: 'present' | 'absent' | 'late') => {
+    setAttendanceData(prev => 
+      prev.map(item => 
+        item.studentId === studentId ? { ...item, status } : item
+      )
+    );
+  };
+  
+  // Save the attendance data
+  const saveAttendance = () => {
+    // In a real app, this would send the data to the server
+    // For this demo, we'll just show a toast
+    toast({
+      title: "Attendance saved",
+      description: `Attendance for ${format(selectedDate || new Date(), 'PPP')} has been saved.`,
+    });
+    setShowAttendanceDialog(false);
+  };
+  
+  // Get attendance status for a specific student on the selected date and subject
+  const getAttendanceStatus = (studentId: string) => {
+    const studentAttendance = mockAttendance.find(a => 
+      a.studentId === studentId && 
+      a.date === format(selectedDate || new Date(), 'yyyy-MM-dd') &&
+      a.subjectId === selectedSubject
+    );
+    
+    return studentAttendance?.status || 'N/A';
+  };
+  
+  // Render the status icon based on attendance status
+  const renderStatusIcon = (status: string) => {
+    switch (status) {
+      case 'present':
+        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+      case 'absent':
+        return <XCircle className="h-5 w-5 text-red-500" />;
+      case 'late':
+        return <AlertCircle className="h-5 w-5 text-amber-500" />;
+      default:
+        return null;
+    }
+  };
+  
+  // Get the text display for attendance status
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'present':
+        return 'Present';
+      case 'absent':
+        return 'Absent';
+      case 'late':
+        return 'Late';
+      default:
+        return 'Not Marked';
+    }
+  };
 
   return (
     <Layout>
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-6">Attendance Management</h1>
-
-        <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'entry' | 'history')}>
-          <TabsList className="mb-4">
-            <TabsTrigger value="entry">Mark Attendance</TabsTrigger>
-            <TabsTrigger value="history">View History</TabsTrigger>
+      <div className="space-y-6">
+        <h2 className="text-3xl font-bold tracking-tight">Attendance Management</h2>
+        
+        <Tabs defaultValue="daily" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="daily">Daily Attendance</TabsTrigger>
+            <TabsTrigger value="report">Attendance Report</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="entry">
-            <Card>
-              <CardHeader>
-                <CardTitle>Record Attendance</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Division</label>
-                    <Select value={selectedDivision} onValueChange={handleDivisionChange}>
+          <TabsContent value="daily" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Date Selection */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Select Date</CardTitle>
+                  <CardDescription>Choose a date to mark or view attendance</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    className="rounded-md border"
+                  />
+                </CardContent>
+              </Card>
+              
+              {/* Class and Subject Selection */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Select Class & Subject</CardTitle>
+                  <CardDescription>Choose the class and subject for attendance</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Class</label>
+                    <Select 
+                      value={selectedClass} 
+                      onValueChange={setSelectedClass}
+                    >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select division" />
+                        <SelectValue placeholder="Select class" />
                       </SelectTrigger>
                       <SelectContent>
-                        {divisions.map((division) => (
-                          <SelectItem 
-                            key={division.division_id} 
-                            value={division.division_id.toString()}
-                          >
-                            {division.classes.class_name} - {division.section}
+                        {classes.map(classItem => (
+                          <SelectItem key={classItem.id} value={classItem.id}>
+                            Class {classItem.name} - {classItem.section}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Subject</label>
-                    <Select value={selectedSubject} onValueChange={handleSubjectChange} disabled={!selectedDivision}>
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Subject</label>
+                    <Select 
+                      value={selectedSubject} 
+                      onValueChange={setSelectedSubject}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select subject" />
                       </SelectTrigger>
                       <SelectContent>
-                        {filteredSubjects.map((subject) => (
-                          <SelectItem 
-                            key={subject.subject_id} 
-                            value={subject.subject_id.toString()}
-                          >
-                            {subject.subjects.subject_name}
+                        {subjects.map(subject => (
+                          <SelectItem key={subject.id} value={subject.id}>
+                            {subject.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Date</label>
-                    <Calendar
-                      mode="single"
-                      selected={attendanceDate}
-                      onSelect={handleDateChange}
-                      className="rounded-md border"
-                      disabled={(date) => date > new Date() || date < new Date('2023-01-01')}
-                    />
-                    <p className="mt-2 text-sm text-gray-500">
-                      Selected: {format(attendanceDate, 'MMMM dd, yyyy')}
-                    </p>
-                  </div>
-                </div>
-
-                {selectedDivision && selectedSubject && attendanceDate && (
-                  <div className="mt-6">
-                    <h2 className="text-lg font-semibold mb-4">
-                      Attendance for {format(attendanceDate, 'MMMM dd, yyyy')}
-                    </h2>
-                    
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full bg-white rounded-lg overflow-hidden">
-                        <thead className="bg-gray-100">
-                          <tr>
-                            <th className="py-2 px-4 text-left text-sm font-medium text-gray-600">Roll No.</th>
-                            <th className="py-2 px-4 text-left text-sm font-medium text-gray-600">Name</th>
-                            <th className="py-2 px-4 text-left text-sm font-medium text-gray-600">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {students.map((student, index) => {
-                            const attendanceRecord = attendanceRecords.find(
-                              record => record.student_id === student.student_id
-                            );
-                            const status = attendanceRecord ? attendanceRecord.status : 'Present';
-                            
-                            return (
-                              <tr key={student.student_id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                <td className="py-2 px-4 text-sm text-gray-800">{student.enrollment_number}</td>
-                                <td className="py-2 px-4 text-sm text-gray-800">{student.users.username}</td>
-                                <td className="py-2 px-4">
-                                  <div className="flex space-x-2">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleStatusChange(student.student_id, 'Present')}
-                                      className={getStatusButtonClass('Present', status)}
-                                    >
-                                      Present
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleStatusChange(student.student_id, 'Absent')}
-                                      className={getStatusButtonClass('Absent', status)}
-                                    >
-                                      Absent
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleStatusChange(student.student_id, 'Late')}
-                                      className={getStatusButtonClass('Late', status)}
-                                    >
-                                      Late
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    className="w-full" 
+                    onClick={handleMarkAttendance}
+                  >
+                    Mark Attendance
+                  </Button>
+                </CardFooter>
+              </Card>
+              
+              {/* Today's Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Attendance Summary</CardTitle>
+                  <CardDescription>
+                    {selectedDate ? format(selectedDate, 'PPP') : 'Today'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      <span>Present:</span>
                     </div>
-                    
-                    <div className="mt-6 flex justify-end">
-                      <Button 
-                        onClick={handleSubmitAttendance} 
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? 'Saving...' : 'Save Attendance'}
-                      </Button>
-                    </div>
+                    <span className="font-medium">16 (80%)</span>
                   </div>
-                )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <AlertCircle className="h-5 w-5 text-amber-500" />
+                      <span>Late:</span>
+                    </div>
+                    <span className="font-medium">2 (10%)</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <XCircle className="h-5 w-5 text-red-500" />
+                      <span>Absent:</span>
+                    </div>
+                    <span className="font-medium">2 (10%)</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            {/* Attendance List */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Attendance List</CardTitle>
+                <CardDescription>
+                  Attendance status for Class {
+                    classes.find(c => c.id === selectedClass)?.name
+                  } {
+                    classes.find(c => c.id === selectedClass)?.section
+                  } - {
+                    subjects.find(s => s.id === selectedSubject)?.name
+                  } on {
+                    selectedDate ? format(selectedDate, 'PPP') : 'Today'
+                  }
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Roll No</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredStudents.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={3} className="text-center">
+                          No students found for this class
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredStudents.map(student => {
+                        const status = getAttendanceStatus(student.id);
+                        return (
+                          <TableRow key={student.id}>
+                            <TableCell>{student.rollNumber}</TableCell>
+                            <TableCell>{student.name}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center space-x-2">
+                                {renderStatusIcon(status)}
+                                <span>{getStatusText(status)}</span>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    )}
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
           </TabsContent>
           
-          <TabsContent value="history">
+          <TabsContent value="report" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Attendance History</CardTitle>
+                <CardTitle>Attendance Report</CardTitle>
+                <CardDescription>Detailed attendance statistics for all classes</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-500">Select filters to view attendance history.</p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Division</label>
-                    <Select value={selectedDivision} onValueChange={handleDivisionChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select division" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {divisions.map((division) => (
-                          <SelectItem 
-                            key={division.division_id} 
-                            value={division.division_id.toString()}
-                          >
-                            {division.classes.class_name} - {division.section}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                <p className="text-muted-foreground">
+                  Generate comprehensive attendance reports, view trends, and export data.
+                </p>
+                <div className="mt-6">
+                  {/* Report content would go here */}
+                  <div className="flex items-center justify-center h-40 border-2 border-dashed rounded-md">
+                    <p className="text-muted-foreground">
+                      This feature will be available in the next update.
+                    </p>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Subject</label>
-                    <Select value={selectedSubject} onValueChange={handleSubjectChange} disabled={!selectedDivision}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select subject" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {filteredSubjects.map((subject) => (
-                          <SelectItem 
-                            key={subject.subject_id} 
-                            value={subject.subject_id.toString()}
-                          >
-                            {subject.subjects.subject_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Button className="mt-6">Load History</Button>
-                  </div>
-                </div>
-
-                {/* Placeholder for attendance history table - would fetch from API in real implementation */}
-                <div className="mt-6 p-4 text-center border rounded-md">
-                  <p className="text-gray-500">Select filters and click "Load History" to view attendance records.</p>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
+      
+      {/* Attendance Marking Dialog */}
+      <Dialog open={showAttendanceDialog} onOpenChange={setShowAttendanceDialog}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Mark Attendance</DialogTitle>
+            <DialogDescription>
+              Class {classes.find(c => c.id === selectedClass)?.name} {classes.find(c => c.id === selectedClass)?.section} - {subjects.find(s => s.id === selectedSubject)?.name} for {selectedDate ? format(selectedDate, 'PPP') : 'Today'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="overflow-y-auto max-h-[60vh]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Roll No</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Present</TableHead>
+                  <TableHead>Late</TableHead>
+                  <TableHead>Absent</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredStudents.map(student => {
+                  const studentAttendance = attendanceData.find(a => a.studentId === student.id);
+                  return (
+                    <TableRow key={student.id}>
+                      <TableCell>{student.rollNumber}</TableCell>
+                      <TableCell>{student.name}</TableCell>
+                      <TableCell className="text-center">
+                        <Checkbox
+                          checked={studentAttendance?.status === 'present'}
+                          onCheckedChange={() => updateAttendanceStatus(student.id, 'present')}
+                        />
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Checkbox
+                          checked={studentAttendance?.status === 'late'}
+                          onCheckedChange={() => updateAttendanceStatus(student.id, 'late')}
+                        />
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Checkbox
+                          checked={studentAttendance?.status === 'absent'}
+                          onCheckedChange={() => updateAttendanceStatus(student.id, 'absent')}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAttendanceDialog(false)}>
+              <XIcon className="mr-2 h-4 w-4" />
+              Cancel
+            </Button>
+            <Button onClick={saveAttendance}>
+              <SaveIcon className="mr-2 h-4 w-4" />
+              Save Attendance
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };
 
-export default Attendance;
+export default TeacherAttendance;

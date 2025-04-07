@@ -21,9 +21,6 @@ import StudentDetail from "./pages/teacher/StudentDetail";
 // Parent Pages
 import ParentDashboard from "./pages/parent/Dashboard";
 
-// Student Pages
-import StudentDashboard from "./pages/student/Dashboard";
-
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -42,7 +39,7 @@ const App = () => (
             <Route 
               path="/teacher/dashboard" 
               element={
-                <PrivateRoute allowedRoles={['Teacher', 'Admin']}>
+                <PrivateRoute allowedRoles={['teacher', 'admin']}>
                   <TeacherDashboard />
                 </PrivateRoute>
               } 
@@ -50,7 +47,7 @@ const App = () => (
             <Route 
               path="/teacher/attendance" 
               element={
-                <PrivateRoute allowedRoles={['Teacher', 'Admin']}>
+                <PrivateRoute allowedRoles={['teacher', 'admin']}>
                   <TeacherAttendance />
                 </PrivateRoute>
               } 
@@ -58,7 +55,7 @@ const App = () => (
             <Route 
               path="/teacher/performance" 
               element={
-                <PrivateRoute allowedRoles={['Teacher', 'Admin']}>
+                <PrivateRoute allowedRoles={['teacher', 'admin']}>
                   <TeacherPerformance />
                 </PrivateRoute>
               } 
@@ -66,7 +63,7 @@ const App = () => (
             <Route 
               path="/teacher/student/:id" 
               element={
-                <PrivateRoute allowedRoles={['Teacher', 'Admin']}>
+                <PrivateRoute allowedRoles={['teacher', 'admin']}>
                   <StudentDetail />
                 </PrivateRoute>
               } 
@@ -76,7 +73,7 @@ const App = () => (
             <Route 
               path="/parent/dashboard" 
               element={
-                <PrivateRoute allowedRoles={['Parent']}>
+                <PrivateRoute allowedRoles={['parent']}>
                   <ParentDashboard />
                 </PrivateRoute>
               } 
@@ -84,18 +81,8 @@ const App = () => (
             <Route 
               path="/parent/student/:id" 
               element={
-                <PrivateRoute allowedRoles={['Parent']}>
+                <PrivateRoute allowedRoles={['parent']}>
                   <StudentDetail />
-                </PrivateRoute>
-              } 
-            />
-
-            {/* Student Routes */}
-            <Route 
-              path="/student/dashboard" 
-              element={
-                <PrivateRoute allowedRoles={['Student']}>
-                  <StudentDashboard />
                 </PrivateRoute>
               } 
             />
