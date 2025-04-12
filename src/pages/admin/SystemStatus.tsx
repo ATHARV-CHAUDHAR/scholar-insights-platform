@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +13,7 @@ import {
   Cpu,
   Database,
   Server,
-  Hard,
+  HardDrive,
   Mail,
   Shield,
   Activity,
@@ -125,13 +124,10 @@ const SystemStatusPage: React.FC = () => {
       description: "Retrieving latest system metrics...",
     });
     
-    // Simulate refresh delay
     setTimeout(() => {
-      // Random status updates for demo purposes
       const updatedServices = services.map(service => {
         const randomUpdate = Math.random();
         if (randomUpdate > 0.7) {
-          // 30% chance of status change
           const statuses: ('operational' | 'degraded' | 'down')[] = ['operational', 'degraded', 'down'];
           const newStatus = statuses[Math.floor(Math.random() * statuses.length)];
           
@@ -154,14 +150,13 @@ const SystemStatusPage: React.FC = () => {
         return service;
       });
       
-      // Update resource utilization
       const updatedResources = resources.map(resource => {
-        const fluctuation = (Math.random() * 10) - 5; // -5% to +5%
+        const fluctuation = (Math.random() * 10) - 5;
         let newUsed = resource.used + (resource.total * (fluctuation / 100));
-        newUsed = Math.max(0, Math.min(newUsed, resource.total)); // Ensure within bounds
+        newUsed = Math.max(0, Math.min(newUsed, resource.total));
         return {
           ...resource,
-          used: +newUsed.toFixed(1)  // Round to 1 decimal place
+          used: +newUsed.toFixed(1)
         };
       });
       
@@ -193,7 +188,7 @@ const SystemStatusPage: React.FC = () => {
     switch (id) {
       case 'database': return <Database className="h-5 w-5" />;
       case 'api': return <Server className="h-5 w-5" />;
-      case 'storage': return <Hard className="h-5 w-5" />;
+      case 'storage': return <HardDrive className="h-5 w-5" />;
       case 'auth': return <Shield className="h-5 w-5" />;
       case 'email': return <Mail className="h-5 w-5" />;
       case 'security': return <Shield className="h-5 w-5" />;
@@ -206,7 +201,7 @@ const SystemStatusPage: React.FC = () => {
     switch (id) {
       case 'cpu': return <Cpu className="h-5 w-5" />;
       case 'memory': return <Server className="h-5 w-5" />;
-      case 'disk': return <Hard className="h-5 w-5" />;
+      case 'disk': return <HardDrive className="h-5 w-5" />;
       case 'bandwidth': return <Activity className="h-5 w-5" />;
       case 'database': return <Database className="h-5 w-5" />;
       default: return <Activity className="h-5 w-5" />;
