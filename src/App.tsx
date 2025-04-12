@@ -21,6 +21,13 @@ import StudentDetail from "./pages/teacher/StudentDetail";
 // Parent Pages
 import ParentDashboard from "./pages/parent/Dashboard";
 
+// Admin Pages
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminTeachers from "./pages/admin/Teachers";
+import AdminStudents from "./pages/admin/Students";
+import AdminClasses from "./pages/admin/Classes";
+import AdminSettings from "./pages/admin/Settings";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -34,6 +41,48 @@ const App = () => (
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            
+            {/* Admin Routes */}
+            <Route 
+              path="/admin/dashboard" 
+              element={
+                <PrivateRoute allowedRoles={['admin']}>
+                  <AdminDashboard />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/admin/teachers" 
+              element={
+                <PrivateRoute allowedRoles={['admin']}>
+                  <AdminTeachers />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/admin/students" 
+              element={
+                <PrivateRoute allowedRoles={['admin']}>
+                  <AdminStudents />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/admin/classes" 
+              element={
+                <PrivateRoute allowedRoles={['admin']}>
+                  <AdminClasses />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/admin/settings" 
+              element={
+                <PrivateRoute allowedRoles={['admin']}>
+                  <AdminSettings />
+                </PrivateRoute>
+              } 
+            />
             
             {/* Teacher Routes */}
             <Route 

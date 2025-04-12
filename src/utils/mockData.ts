@@ -1,4 +1,3 @@
-
 import { User, Student, Attendance, Subject, Performance, ClassRoom } from '@/types';
 
 // Mock Users
@@ -8,21 +7,21 @@ export const users: User[] = [
     name: 'John Doe',
     email: 'johndoe@example.com',
     role: 'admin',
-    avatar: 'https://ui-avatars.com/api/?name=John+Doe&background=4A6FFF&color=fff',
+    avatar: '',
   },
   {
     id: '2',
     name: 'Jane Smith',
     email: 'janesmith@example.com',
     role: 'teacher',
-    avatar: 'https://ui-avatars.com/api/?name=Jane+Smith&background=38B2AC&color=fff',
+    avatar: '',
   },
   {
     id: '3',
     name: 'Robert Johnson',
     email: 'robertjohnson@example.com',
     role: 'parent',
-    avatar: 'https://ui-avatars.com/api/?name=Robert+Johnson&background=6875F5&color=fff',
+    avatar: '',
   },
 ];
 
