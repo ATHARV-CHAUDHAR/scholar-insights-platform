@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,37 +23,22 @@ import StudentTable from '@/components/dashboard/StudentTable';
 import { students, performance, attendance, subjects } from '@/utils/mockData';
 
 // Mock data for charts
-const performanceData = {
-  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-  datasets: [
-    {
-      name: 'Mathematics',
-      data: [85, 82, 80, 78, 82, 84],
-    },
-    {
-      name: 'Science',
-      data: [75, 78, 82, 80, 85, 87],
-    },
-    {
-      name: 'English',
-      data: [70, 75, 80, 82, 84, 85],
-    },
-  ],
-};
+const performanceData = [
+  { name: 'Jan', value: 85, average: 75 },
+  { name: 'Feb', value: 82, average: 78 },
+  { name: 'Mar', value: 80, average: 80 },
+  { name: 'Apr', value: 78, average: 75 },
+  { name: 'May', value: 82, average: 80 },
+  { name: 'Jun', value: 84, average: 83 }
+];
 
-const attendanceData = {
-  labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-  datasets: [
-    {
-      name: 'Present',
-      data: [95, 92, 88, 94, 90],
-    },
-    {
-      name: 'Absent',
-      data: [5, 8, 12, 6, 10],
-    },
-  ],
-};
+const attendanceData = [
+  { name: 'Math', present: 95, absent: 5, late: 0 },
+  { name: 'English', present: 92, absent: 5, late: 3 },
+  { name: 'Science', present: 88, absent: 10, late: 2 },
+  { name: 'History', present: 94, absent: 4, late: 2 },
+  { name: 'Art', present: 90, absent: 7, late: 3 }
+];
 
 const AdminDashboard: React.FC = () => {
   const { toast } = useToast();
@@ -84,6 +68,7 @@ const AdminDashboard: React.FC = () => {
             description="+12% from last month" 
             icon={Users} 
             trend="up"
+            trendValue="12%"
             linkTo="/admin/students" 
           />
           <StatCard 
@@ -92,6 +77,7 @@ const AdminDashboard: React.FC = () => {
             description="+3 new this month" 
             icon={Users} 
             trend="up"
+            trendValue="5%"
             linkTo="/admin/teachers" 
           />
           <StatCard 
@@ -107,6 +93,7 @@ const AdminDashboard: React.FC = () => {
             description="+8.2% from last quarter" 
             icon={DollarSign} 
             trend="up"
+            trendValue="8.2%"
             linkTo="/admin/finance" 
           />
         </div>
