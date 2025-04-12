@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
 
 interface SystemService {
   id: string;
@@ -108,16 +109,14 @@ const SystemStatus: React.FC = () => {
         </div>
       </CardContent>
       <CardFooter>
-        <Button 
-          variant="ghost" 
-          className="w-full text-sm"
-          onClick={() => toast({
-            title: "System Status",
-            description: "Opening detailed system status page...",
-          })}
-        >
-          View Detailed Status
-        </Button>
+        <Link to="/admin/system-status" className="w-full">
+          <Button 
+            variant="ghost" 
+            className="w-full text-sm"
+          >
+            View Detailed Status
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   );

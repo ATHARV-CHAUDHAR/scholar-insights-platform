@@ -27,6 +27,9 @@ import AdminTeachers from "./pages/admin/Teachers";
 import AdminStudents from "./pages/admin/Students";
 import AdminClasses from "./pages/admin/Classes";
 import AdminSettings from "./pages/admin/Settings";
+import SystemStatusPage from "./pages/admin/SystemStatus";
+import NewTeacher from "./pages/admin/NewTeacher";
+import NewClass from "./pages/admin/NewClass";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +63,14 @@ const App = () => (
               } 
             />
             <Route 
+              path="/admin/teachers/new" 
+              element={
+                <PrivateRoute allowedRoles={['admin']}>
+                  <NewTeacher />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
               path="/admin/students" 
               element={
                 <PrivateRoute allowedRoles={['admin']}>
@@ -76,10 +87,26 @@ const App = () => (
               } 
             />
             <Route 
+              path="/admin/classes/new" 
+              element={
+                <PrivateRoute allowedRoles={['admin']}>
+                  <NewClass />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
               path="/admin/settings" 
               element={
                 <PrivateRoute allowedRoles={['admin']}>
                   <AdminSettings />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/admin/system-status" 
+              element={
+                <PrivateRoute allowedRoles={['admin']}>
+                  <SystemStatusPage />
                 </PrivateRoute>
               } 
             />
