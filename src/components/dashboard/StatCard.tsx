@@ -15,6 +15,7 @@ interface StatCardProps {
   className?: string;
   iconClassName?: string;
   linkTo?: string;
+  onClick?: () => void;
 }
 
 const StatCard: React.FC<StatCardProps> = ({
@@ -27,18 +28,23 @@ const StatCard: React.FC<StatCardProps> = ({
   className,
   iconClassName,
   linkTo,
+  onClick,
 }) => {
   const CardWrapper = linkTo ? ({ children }: { children: React.ReactNode }) => (
     <Link to={linkTo} className="block h-full w-full">
       {children}
     </Link>
+  ) : onClick ? ({ children }: { children: React.ReactNode }) => (
+    <button onClick={onClick} className="block h-full w-full text-left bg-transparent border-0 p-0 m-0">
+      {children}
+    </button>
   ) : React.Fragment;
   
   return (
     <CardWrapper>
       <Card className={cn(
         "overflow-hidden h-full", 
-        linkTo && "transition-all hover:shadow-md hover:scale-[1.01] duration-200", 
+        (linkTo || onClick) && "transition-all hover:shadow-md hover:scale-[1.01] duration-200 cursor-pointer", 
         className
       )}>
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">

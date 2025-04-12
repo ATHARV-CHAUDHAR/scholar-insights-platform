@@ -21,13 +21,19 @@ import {
   Eye,
   MoreHorizontal,
   MessageSquare,
-  Mail
+  Mail,
+  CheckCircle,
+  AlertTriangle,
+  Phone
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import StatCard from '@/components/dashboard/StatCard';
 import AttendanceChart from '@/components/dashboard/AttendanceChart';
 import PerformanceChart from '@/components/dashboard/PerformanceChart';
 import StudentTable from '@/components/dashboard/StudentTable';
+import QuickActions from '@/components/dashboard/QuickActions';
+import SystemStatus from '@/components/dashboard/SystemStatus';
+import RecentEnrollments from '@/components/dashboard/RecentEnrollments';
 import { students, performance, attendance, subjects } from '@/utils/mockData';
 import { Link } from 'react-router-dom';
 
@@ -73,13 +79,6 @@ const AdminDashboard: React.FC = () => {
     });
   };
 
-  const handleContactStudent = (name: string) => {
-    toast({
-      title: `Contacting ${name}`,
-      description: "Opening messaging interface.",
-    });
-  };
-
   return (
     <Layout>
       <div className="space-y-6 p-4 sm:p-6">
@@ -111,6 +110,10 @@ const AdminDashboard: React.FC = () => {
             trendValue="12%"
             linkTo="/admin/students" 
             iconClassName="bg-blue-100 text-blue-700"
+            onClick={() => toast({
+              title: "Students Overview",
+              description: "Navigating to students page...",
+            })}
           />
           <StatCard 
             title="Total Teachers" 
@@ -121,6 +124,10 @@ const AdminDashboard: React.FC = () => {
             trendValue="5%"
             linkTo="/admin/teachers" 
             iconClassName="bg-green-100 text-green-700"
+            onClick={() => toast({
+              title: "Teachers Overview",
+              description: "Navigating to teachers page...",
+            })}
           />
           <StatCard 
             title="Classes" 
@@ -129,6 +136,10 @@ const AdminDashboard: React.FC = () => {
             icon={BookOpen} 
             linkTo="/admin/classes"
             iconClassName="bg-amber-100 text-amber-700"
+            onClick={() => toast({
+              title: "Classes Overview",
+              description: "Navigating to classes page...",
+            })}
           />
           <StatCard 
             title="Revenue" 
@@ -139,6 +150,10 @@ const AdminDashboard: React.FC = () => {
             trendValue="8.2%"
             linkTo="/admin/finance" 
             iconClassName="bg-purple-100 text-purple-700"
+            onClick={() => toast({
+              title: "Finance Overview",
+              description: "Navigating to finance page...",
+            })}
           />
         </div>
 
@@ -158,7 +173,15 @@ const AdminDashboard: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="flex justify-between items-center">
                     Recent Notifications
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0"
+                      onClick={() => toast({
+                        title: "Notifications Settings",
+                        description: "Opening notification settings...",
+                      })}
+                    >
                       <MoreHorizontal className="h-4 w-4" />
                       <span className="sr-only">More options</span>
                     </Button>
@@ -166,21 +189,39 @@ const AdminDashboard: React.FC = () => {
                   <CardDescription>System alerts and updates</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-start gap-4 pb-3 border-b border-gray-100">
+                  <div 
+                    className="flex items-start gap-4 pb-3 border-b border-gray-100 hover:bg-muted/50 p-2 rounded-md cursor-pointer transition-colors"
+                    onClick={() => toast({
+                      title: "System Maintenance",
+                      description: "View maintenance details for May 15, 2AM-4AM",
+                    })}
+                  >
                     <Bell className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
                     <div className="min-w-0">
                       <p className="text-sm font-medium truncate">System Maintenance</p>
                       <p className="text-xs text-gray-500">Scheduled for May 15, 2AM-4AM</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-4 pb-3 border-b border-gray-100">
+                  <div 
+                    className="flex items-start gap-4 pb-3 border-b border-gray-100 hover:bg-muted/50 p-2 rounded-md cursor-pointer transition-colors"
+                    onClick={() => toast({
+                      title: "End of Year Reports",
+                      description: "View report preparation guidelines",
+                    })}
+                  >
                     <FileText className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
                     <div className="min-w-0">
                       <p className="text-sm font-medium truncate">End of Year Reports</p>
                       <p className="text-xs text-gray-500">Due in 14 days</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-4">
+                  <div 
+                    className="flex items-start gap-4 hover:bg-muted/50 p-2 rounded-md cursor-pointer transition-colors"
+                    onClick={() => toast({
+                      title: "New Students",
+                      description: "View 5 pending student applications",
+                    })}
+                  >
                     <Users className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <div className="min-w-0">
                       <p className="text-sm font-medium truncate">5 New Students</p>
@@ -189,174 +230,24 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="ghost" className="w-full text-sm">View All Notifications</Button>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full text-sm"
+                    onClick={() => toast({
+                      title: "All Notifications",
+                      description: "Opening notifications center...",
+                    })}
+                  >
+                    View All Notifications
+                  </Button>
                 </CardFooter>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex justify-between items-center">
-                    Quick Actions
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <MoreHorizontal className="h-4 w-4" />
-                      <span className="sr-only">More options</span>
-                    </Button>
-                  </CardTitle>
-                  <CardDescription>Frequently used operations</CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-2">
-                  <Button className="justify-start text-sm">
-                    <Users className="mr-2 h-4 w-4" />
-                    Add New Teacher
-                  </Button>
-                  <Button className="justify-start text-sm" variant="outline">
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    Create Class
-                  </Button>
-                  <Button className="justify-start text-sm" variant="outline">
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Schedule Event
-                  </Button>
-                  <Button className="justify-start text-sm" variant="outline">
-                    <Settings className="mr-2 h-4 w-4" />
-                    System Settings
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="lg:col-span-1 md:col-span-2">
-                <CardHeader>
-                  <CardTitle className="flex justify-between items-center">
-                    System Status
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <RefreshCw className="h-4 w-4" />
-                      <span className="sr-only">Refresh status</span>
-                    </Button>
-                  </CardTitle>
-                  <CardDescription>Current system health</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Database</span>
-                      <Badge className="bg-green-500">Operational</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">API</span>
-                      <Badge className="bg-green-500">Operational</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Storage</span>
-                      <Badge className="bg-green-500">Operational</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Authentication</span>
-                      <Badge className="bg-green-500">Operational</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Email Services</span>
-                      <Badge className="bg-amber-500">Degraded</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="ghost" className="w-full text-sm">View Detailed Status</Button>
-                </CardFooter>
-              </Card>
+              <QuickActions />
+              <SystemStatus />
             </div>
 
-            <Card>
-              <CardHeader className="flex flex-col sm:flex-row justify-between sm:items-center">
-                <div>
-                  <CardTitle>Recent Enrollments</CardTitle>
-                  <CardDescription>New students in the past 30 days</CardDescription>
-                </div>
-                <div className="mt-2 sm:mt-0">
-                  <Button variant="outline" size="sm" className="gap-1">
-                    <Filter className="h-3.5 w-3.5" />
-                    <span>Filter</span>
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Student Name</TableHead>
-                        <TableHead className="hidden sm:table-cell">Class</TableHead>
-                        <TableHead className="hidden md:table-cell">Roll Number</TableHead>
-                        <TableHead className="hidden lg:table-cell">Enrollment Date</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Action</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell className="font-medium">Alice Johnson</TableCell>
-                        <TableCell className="hidden sm:table-cell">Class 9A</TableCell>
-                        <TableCell className="hidden md:table-cell">S20230501</TableCell>
-                        <TableCell className="hidden lg:table-cell">Apr 15, 2023</TableCell>
-                        <TableCell><Badge className="bg-amber-500">Pending</Badge></TableCell>
-                        <TableCell>
-                          <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <Eye className="h-4 w-4" />
-                              <span className="sr-only">View details</span>
-                            </Button>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleContactStudent("Alice Johnson")}>
-                              <Mail className="h-4 w-4" />
-                              <span className="sr-only">Contact</span>
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">Robert Smith</TableCell>
-                        <TableCell className="hidden sm:table-cell">Class 8B</TableCell>
-                        <TableCell className="hidden md:table-cell">S20230502</TableCell>
-                        <TableCell className="hidden lg:table-cell">Apr 18, 2023</TableCell>
-                        <TableCell><Badge className="bg-green-500">Approved</Badge></TableCell>
-                        <TableCell>
-                          <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <Eye className="h-4 w-4" />
-                              <span className="sr-only">View details</span>
-                            </Button>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleContactStudent("Robert Smith")}>
-                              <Mail className="h-4 w-4" />
-                              <span className="sr-only">Contact</span>
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">Emily Davis</TableCell>
-                        <TableCell className="hidden sm:table-cell">Class 10C</TableCell>
-                        <TableCell className="hidden md:table-cell">S20230503</TableCell>
-                        <TableCell className="hidden lg:table-cell">Apr 22, 2023</TableCell>
-                        <TableCell><Badge className="bg-amber-500">Pending</Badge></TableCell>
-                        <TableCell>
-                          <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <Eye className="h-4 w-4" />
-                              <span className="sr-only">View details</span>
-                            </Button>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleContactStudent("Emily Davis")}>
-                              <Mail className="h-4 w-4" />
-                              <span className="sr-only">Contact</span>
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button variant="ghost" className="text-sm">View All Enrollments</Button>
-              </CardFooter>
-            </Card>
+            <RecentEnrollments />
           </TabsContent>
 
           <TabsContent value="performance" className="space-y-4">
@@ -368,11 +259,25 @@ const AdminDashboard: React.FC = () => {
                     <CardDescription>School-wide academic metrics</CardDescription>
                   </div>
                   <div className="mt-2 sm:mt-0 flex gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => toast({
+                        title: "Performance Filters",
+                        description: "Opening performance filter options...",
+                      })}
+                    >
                       <Filter className="h-3.5 w-3.5 mr-1" />
                       <span className="hidden sm:inline">Filter</span>
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => toast({
+                        title: "Export Performance Data",
+                        description: "Exporting performance data to CSV...",
+                      })}
+                    >
                       <Download className="h-3.5 w-3.5 mr-1" />
                       <span className="hidden sm:inline">Export</span>
                     </Button>
@@ -389,11 +294,25 @@ const AdminDashboard: React.FC = () => {
                     <CardDescription>Average scores by class</CardDescription>
                   </div>
                   <div className="mt-2 sm:mt-0 flex gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => toast({
+                        title: "Class Filters",
+                        description: "Opening class filter options...",
+                      })}
+                    >
                       <Filter className="h-3.5 w-3.5 mr-1" />
                       <span className="hidden sm:inline">Filter</span>
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => toast({
+                        title: "Export Class Data",
+                        description: "Exporting class performance data to CSV...",
+                      })}
+                    >
                       <Download className="h-3.5 w-3.5 mr-1" />
                       <span className="hidden sm:inline">Export</span>
                     </Button>
@@ -411,11 +330,25 @@ const AdminDashboard: React.FC = () => {
                   <CardDescription>Highest achievers across all classes</CardDescription>
                 </div>
                 <div className="mt-2 sm:mt-0 flex gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => toast({
+                      title: "Student Filters",
+                      description: "Opening student filter options...",
+                    })}
+                  >
                     <Filter className="h-3.5 w-3.5 mr-1" />
                     <span>Filter</span>
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => toast({
+                      title: "Export Student Data",
+                      description: "Exporting student data to CSV...",
+                    })}
+                  >
                     <Download className="h-3.5 w-3.5 mr-1" />
                     <span>Export</span>
                   </Button>
@@ -436,11 +369,25 @@ const AdminDashboard: React.FC = () => {
                     <CardDescription>School-wide attendance trends</CardDescription>
                   </div>
                   <div className="mt-2 sm:mt-0 flex gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => toast({
+                        title: "Attendance Filters",
+                        description: "Opening attendance filter options...",
+                      })}
+                    >
                       <Filter className="h-3.5 w-3.5 mr-1" />
                       <span className="hidden sm:inline">Filter</span>
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => toast({
+                        title: "Export Attendance Data",
+                        description: "Exporting attendance data to CSV...",
+                      })}
+                    >
                       <Download className="h-3.5 w-3.5 mr-1" />
                       <span className="hidden sm:inline">Export</span>
                     </Button>
@@ -457,11 +404,25 @@ const AdminDashboard: React.FC = () => {
                     <CardDescription>Comparison across classes</CardDescription>
                   </div>
                   <div className="mt-2 sm:mt-0 flex gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => toast({
+                        title: "Class Filters",
+                        description: "Opening class filter options...",
+                      })}
+                    >
                       <Filter className="h-3.5 w-3.5 mr-1" />
                       <span className="hidden sm:inline">Filter</span>
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => toast({
+                        title: "Export Class Data",
+                        description: "Exporting class attendance data to CSV...",
+                      })}
+                    >
                       <Download className="h-3.5 w-3.5 mr-1" />
                       <span className="hidden sm:inline">Export</span>
                     </Button>
@@ -479,11 +440,25 @@ const AdminDashboard: React.FC = () => {
                   <CardDescription>Students with low attendance</CardDescription>
                 </div>
                 <div className="mt-2 sm:mt-0 flex gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => toast({
+                      title: "Attendance Filters",
+                      description: "Opening attendance filter options...",
+                    })}
+                  >
                     <Filter className="h-3.5 w-3.5 mr-1" />
                     <span>Filter</span>
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => toast({
+                      title: "Export Attendance Data",
+                      description: "Exporting attendance concerns data to CSV...",
+                    })}
+                  >
                     <Download className="h-3.5 w-3.5 mr-1" />
                     <span>Export</span>
                   </Button>
@@ -511,8 +486,24 @@ const AdminDashboard: React.FC = () => {
                         <TableCell className="hidden lg:table-cell">Apr 28, 2023</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
-                            <Button variant="outline" size="sm" className="h-8">Contact</Button>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="h-8"
+                              onClick={() => toast({
+                                title: "Contact James Wilson",
+                                description: "Opening messaging interface...",
+                              })}
+                            >Contact</Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0"
+                              onClick={() => toast({
+                                title: "Actions for James Wilson",
+                                description: "Opening more options...",
+                              })}
+                            >
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </div>
@@ -526,8 +517,24 @@ const AdminDashboard: React.FC = () => {
                         <TableCell className="hidden lg:table-cell">May 2, 2023</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
-                            <Button variant="outline" size="sm" className="h-8">Contact</Button>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="h-8"
+                              onClick={() => toast({
+                                title: "Contact Sophia Brown",
+                                description: "Opening messaging interface...",
+                              })}
+                            >Contact</Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0"
+                              onClick={() => toast({
+                                title: "Actions for Sophia Brown",
+                                description: "Opening more options...",
+                              })}
+                            >
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </div>
