@@ -29,16 +29,20 @@ const StatCard: React.FC<StatCardProps> = ({
   linkTo,
 }) => {
   const CardWrapper = linkTo ? ({ children }: { children: React.ReactNode }) => (
-    <Link to={linkTo} className="block h-full">
+    <Link to={linkTo} className="block h-full w-full">
       {children}
     </Link>
   ) : React.Fragment;
   
   return (
     <CardWrapper>
-      <Card className={cn("overflow-hidden", linkTo && "transition-all hover:shadow-md", className)}>
+      <Card className={cn(
+        "overflow-hidden h-full", 
+        linkTo && "transition-all hover:shadow-md hover:scale-[1.01] duration-200", 
+        className
+      )}>
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+          <CardTitle className="text-sm font-medium truncate">{title}</CardTitle>
           {Icon && (
             <div className={cn(
               "p-2 rounded-full",
@@ -49,15 +53,15 @@ const StatCard: React.FC<StatCardProps> = ({
           )}
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{value}</div>
+          <div className="text-2xl font-bold truncate">{value}</div>
           {(description || trend) && (
-            <div className="flex items-center mt-1">
+            <div className="flex items-center mt-1 flex-wrap gap-1">
               {trend && (
                 <span className={cn(
-                  "text-xs mr-1",
-                  trend === 'up' && "text-green-600",
-                  trend === 'down' && "text-red-600",
-                  trend === 'neutral' && "text-gray-500"
+                  "text-xs inline-flex items-center px-1.5 py-0.5 rounded-full",
+                  trend === 'up' && "bg-green-100 text-green-700",
+                  trend === 'down' && "bg-red-100 text-red-700",
+                  trend === 'neutral' && "bg-gray-100 text-gray-700"
                 )}>
                   {trend === 'up' && '↑'}
                   {trend === 'down' && '↓'}
