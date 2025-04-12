@@ -21,6 +21,40 @@ import StatCard from '@/components/dashboard/StatCard';
 import AttendanceChart from '@/components/dashboard/AttendanceChart';
 import PerformanceChart from '@/components/dashboard/PerformanceChart';
 import StudentTable from '@/components/dashboard/StudentTable';
+import { students, performance, attendance, subjects } from '@/utils/mockData';
+
+// Mock data for charts
+const performanceData = {
+  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+  datasets: [
+    {
+      name: 'Mathematics',
+      data: [85, 82, 80, 78, 82, 84],
+    },
+    {
+      name: 'Science',
+      data: [75, 78, 82, 80, 85, 87],
+    },
+    {
+      name: 'English',
+      data: [70, 75, 80, 82, 84, 85],
+    },
+  ],
+};
+
+const attendanceData = {
+  labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+  datasets: [
+    {
+      name: 'Present',
+      data: [95, 92, 88, 94, 90],
+    },
+    {
+      name: 'Absent',
+      data: [5, 8, 12, 6, 10],
+    },
+  ],
+};
 
 const AdminDashboard: React.FC = () => {
   const { toast } = useToast();
@@ -38,7 +72,7 @@ const AdminDashboard: React.FC = () => {
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
           <Button onClick={handleRefreshData} variant="outline" className="gap-2">
-            <TrendingUp size={16} />
+            <TrendingUp className="h-4 w-4" />
             Refresh Data
           </Button>
         </div>
@@ -48,7 +82,7 @@ const AdminDashboard: React.FC = () => {
             title="Total Students" 
             value="1,248" 
             description="+12% from last month" 
-            icon={<Users className="h-8 w-8 text-scholar-primary" />} 
+            icon={Users} 
             trend="up"
             linkTo="/admin/students" 
           />
@@ -56,7 +90,7 @@ const AdminDashboard: React.FC = () => {
             title="Total Teachers" 
             value="56" 
             description="+3 new this month" 
-            icon={<Users className="h-8 w-8 text-scholar-accent" />} 
+            icon={Users} 
             trend="up"
             linkTo="/admin/teachers" 
           />
@@ -64,14 +98,14 @@ const AdminDashboard: React.FC = () => {
             title="Classes" 
             value="32" 
             description="Across all grades" 
-            icon={<BookOpen className="h-8 w-8 text-blue-500" />} 
+            icon={BookOpen} 
             linkTo="/admin/classes" 
           />
           <StatCard 
             title="Revenue" 
             value="$528,590" 
             description="+8.2% from last quarter" 
-            icon={<DollarSign className="h-8 w-8 text-green-500" />} 
+            icon={DollarSign} 
             trend="up"
             linkTo="/admin/finance" 
           />
@@ -239,7 +273,7 @@ const AdminDashboard: React.FC = () => {
                   <CardDescription>School-wide academic metrics</CardDescription>
                 </CardHeader>
                 <CardContent className="h-80">
-                  <PerformanceChart />
+                  <PerformanceChart data={performanceData} />
                 </CardContent>
               </Card>
               <Card>
@@ -248,7 +282,7 @@ const AdminDashboard: React.FC = () => {
                   <CardDescription>Average scores by class</CardDescription>
                 </CardHeader>
                 <CardContent className="h-80">
-                  <PerformanceChart />
+                  <PerformanceChart data={performanceData} />
                 </CardContent>
               </Card>
             </div>
@@ -258,7 +292,7 @@ const AdminDashboard: React.FC = () => {
                 <CardDescription>Highest achievers across all classes</CardDescription>
               </CardHeader>
               <CardContent>
-                <StudentTable />
+                <StudentTable students={students.slice(0, 5)} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -271,7 +305,7 @@ const AdminDashboard: React.FC = () => {
                   <CardDescription>School-wide attendance trends</CardDescription>
                 </CardHeader>
                 <CardContent className="h-80">
-                  <AttendanceChart />
+                  <AttendanceChart data={attendanceData} />
                 </CardContent>
               </Card>
               <Card>
@@ -280,7 +314,7 @@ const AdminDashboard: React.FC = () => {
                   <CardDescription>Comparison across classes</CardDescription>
                 </CardHeader>
                 <CardContent className="h-80">
-                  <AttendanceChart />
+                  <AttendanceChart data={attendanceData} />
                 </CardContent>
               </Card>
             </div>
