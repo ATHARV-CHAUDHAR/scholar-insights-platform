@@ -153,81 +153,83 @@ const Calendar = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <TabsContent value="month" className="mt-0">
-                <div className="p-3 bg-white rounded-lg">
-                  <CalendarComponent
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    className="pointer-events-auto"
-                    modifiers={{
-                      booked: filteredEvents.map((event) => event.date),
-                    }}
-                    modifiersStyles={{
-                      booked: {
-                        fontWeight: "bold",
-                        color: "white",
-                        backgroundColor: "#4A6FFF",
-                      },
-                    }}
-                  />
-                </div>
-              </TabsContent>
-              <TabsContent value="list" className="mt-0 space-y-4">
-                {filteredEvents.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-3" />
-                    <h3 className="font-medium">No events found</h3>
-                    <p>Try changing your filter or add new events</p>
+              <Tabs value={view}>
+                <TabsContent value="month" className="mt-0">
+                  <div className="p-3 bg-white rounded-lg">
+                    <CalendarComponent
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      className="pointer-events-auto"
+                      modifiers={{
+                        booked: filteredEvents.map((event) => event.date),
+                      }}
+                      modifiersStyles={{
+                        booked: {
+                          fontWeight: "bold",
+                          color: "white",
+                          backgroundColor: "#4A6FFF",
+                        },
+                      }}
+                    />
                   </div>
-                ) : (
-                  filteredEvents
-                    .sort((a, b) => a.date.getTime() - b.date.getTime())
-                    .map((event) => (
-                      <div
-                        key={event.id}
-                        className="flex justify-between items-start border-b pb-4"
-                      >
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span
-                              className={`text-xs px-2 py-1 rounded-full font-medium ${getBadgeColor(
-                                event.type
-                              )}`}
-                            >
-                              {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
-                            </span>
-                            <h3 className="font-medium">{event.title}</h3>
-                          </div>
-                          <p className="text-sm text-gray-600 mt-1">
-                            {format(event.date, "MMMM d, yyyy")}
-                          </p>
-                          <p className="text-sm text-gray-500 mt-1">
-                            {event.description}
-                          </p>
-                          {event.participants && (
-                            <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
-                              <Users size={14} />
-                              <span>{event.participants.join(", ")}</span>
+                </TabsContent>
+                <TabsContent value="list" className="mt-0 space-y-4">
+                  {filteredEvents.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-3" />
+                      <h3 className="font-medium">No events found</h3>
+                      <p>Try changing your filter or add new events</p>
+                    </div>
+                  ) : (
+                    filteredEvents
+                      .sort((a, b) => a.date.getTime() - b.date.getTime())
+                      .map((event) => (
+                        <div
+                          key={event.id}
+                          className="flex justify-between items-start border-b pb-4"
+                        >
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`text-xs px-2 py-1 rounded-full font-medium ${getBadgeColor(
+                                  event.type
+                                )}`}
+                              >
+                                {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
+                              </span>
+                              <h3 className="font-medium">{event.title}</h3>
                             </div>
-                          )}
+                            <p className="text-sm text-gray-600 mt-1">
+                              {format(event.date, "MMMM d, yyyy")}
+                            </p>
+                            <p className="text-sm text-gray-500 mt-1">
+                              {event.description}
+                            </p>
+                            {event.participants && (
+                              <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
+                                <Users size={14} />
+                                <span>{event.participants.join(", ")}</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="ghost" size="icon">
+                              <Edit size={16} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => deleteEvent(event.id)}
+                            >
+                              <Trash2 size={16} className="text-red-500" />
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Edit size={16} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => deleteEvent(event.id)}
-                          >
-                            <Trash2 size={16} className="text-red-500" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))
-                )}
-              </TabsContent>
+                      ))
+                  )}
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </div>

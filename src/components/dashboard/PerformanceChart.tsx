@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Area, AreaChart, ComposedChart, Bar } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';

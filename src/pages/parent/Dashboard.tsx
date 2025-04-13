@@ -214,7 +214,7 @@ const ParentDashboard: React.FC = () => {
           />
         </div>
         
-        {/* Content Tabs */}
+        {/* Content Tabs - FIX: Make sure TabsContent is properly nested within Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -234,11 +234,14 @@ const ParentDashboard: React.FC = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <PerformanceChart
-                    data={performanceChartData}
-                    title=""
-                    description=""
-                  />
+                  <div className="h-[300px]">
+                    <PerformanceChart
+                      data={performanceChartData}
+                      title=""
+                      description=""
+                      showTabs={false}
+                    />
+                  </div>
                 </CardContent>
               </Card>
               
@@ -440,9 +443,9 @@ const ParentDashboard: React.FC = () => {
                       <Calendar className="h-6 w-6 text-purple-600" />
                     </div>
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900">Calendar Feature</h3>
+                  <h3 className="text-lg font-medium text-gray-900">Calendar View</h3>
                   <p className="mt-1 text-sm text-gray-500">
-                    The detailed calendar view will be available in the next update.
+                    Visit the <Link to="/parent/calendar" className="text-primary font-medium">Calendar Page</Link> to see a detailed view.
                   </p>
                 </div>
               </CardContent>

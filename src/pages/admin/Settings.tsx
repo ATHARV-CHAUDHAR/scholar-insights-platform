@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -98,6 +97,7 @@ const AdminSettings: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="security" className="space-y-4">
+            {/* Security settings content */}
             <Card>
               <CardHeader>
                 <CardTitle>Security Settings</CardTitle>
@@ -191,6 +191,7 @@ const AdminSettings: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="notifications" className="space-y-4">
+            {/* Notifications settings content */}
             <Card>
               <CardHeader>
                 <CardTitle>Email Notifications</CardTitle>
@@ -279,6 +280,7 @@ const AdminSettings: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="integration" className="space-y-4">
+            {/* Integration settings content */}
             <Card>
               <CardHeader>
                 <CardTitle>Third-Party Integrations</CardTitle>
@@ -357,6 +359,7 @@ const AdminSettings: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="backup" className="space-y-4">
+            {/* Backup settings content */}
             <Card>
               <CardHeader>
                 <CardTitle>Backup & Restore</CardTitle>

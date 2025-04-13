@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -15,30 +15,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import {
   CalendarPlus,
   Users,
+  Trash2,
+  Edit,
+  ChevronRight,
+  AlertCircle,
   BookOpen,
   Clock,
-  Check,
-  X,
-  Calendar as CalendarIcon,
-  AlertCircle,
 } from "lucide-react";
 
 type Event = {
   id: number;
   title: string;
   date: Date;
-  startTime?: string;
-  endTime?: string;
   description: string;
-  type: "class" | "exam" | "meeting" | "holiday";
+  type: "class" | "exam" | "school" | "holiday";
+  participants?: string[];
   className?: string;
-  location?: string;
-  status?: "scheduled" | "completed" | "canceled";
+  time?: string;
 };
 
 const TeacherCalendar = () => {
@@ -46,46 +43,39 @@ const TeacherCalendar = () => {
   const [events, setEvents] = useState<Event[]>([
     {
       id: 1,
-      title: "Mathematics Class",
+      title: "Class 9A - Mathematics",
       date: new Date(2025, 3, 15),
-      startTime: "09:00 AM",
-      endTime: "10:30 AM",
-      description: "Class 10 - Algebra",
+      description: "Algebra chapter review",
       type: "class",
-      className: "Class 10A",
-      location: "Room 103",
-      status: "scheduled",
+      participants: ["Class 9A Students"],
+      className: "9A",
+      time: "10:00 AM - 11:30 AM",
     },
     {
       id: 2,
-      title: "Science Quiz",
-      date: new Date(2025, 3, 16),
-      startTime: "11:00 AM",
-      endTime: "12:00 PM",
-      description: "Class 9 - Physics Quiz",
+      title: "Class 10B - Mathematics Test",
+      date: new Date(2025, 3, 18),
+      description: "End of chapter test on Quadratic Equations",
       type: "exam",
-      className: "Class 9B",
-      location: "Room 105",
-      status: "scheduled",
+      participants: ["Class 10B Students"],
+      className: "10B",
+      time: "09:00 AM - 10:30 AM",
     },
     {
       id: 3,
       title: "Parent-Teacher Meeting",
-      date: new Date(2025, 3, 18),
-      startTime: "03:00 PM",
-      endTime: "05:00 PM",
-      description: "Meeting with parents of Class 10 students",
-      type: "meeting",
-      location: "Conference Room",
-      status: "scheduled",
+      date: new Date(2025, 3, 20),
+      description: "Quarterly parent-teacher conference",
+      type: "school",
+      participants: ["Class Teachers", "Parents"],
+      time: "03:00 PM - 05:30 PM",
     },
     {
       id: 4,
-      title: "Teacher's Day",
-      date: new Date(2025, 3, 20),
-      description: "School Holiday - Teacher's Day",
+      title: "Spring Break",
+      date: new Date(2025, 3, 25),
+      description: "School closed for spring break",
       type: "holiday",
-      status: "scheduled",
     },
   ]);
   
@@ -93,11 +83,8 @@ const TeacherCalendar = () => {
   const [newEvent, setNewEvent] = useState<Partial<Event>>({
     title: "",
     date: new Date(),
-    startTime: "",
-    endTime: "",
     description: "",
     type: "class",
-    status: "scheduled",
   });
   const [filter, setFilter] = useState<string>("all");
 
@@ -119,56 +106,28 @@ const TeacherCalendar = () => {
       setNewEvent({
         title: "",
         date: new Date(),
-        startTime: "",
-        endTime: "",
         description: "",
         type: "class",
-        status: "scheduled",
       });
     }
   };
 
-  const markAsComplete = (id: number) => {
-    setEvents(
-      events.map((event) =>
-        event.id === id ? { ...event, status: "completed" } : event
-      )
-    );
-  };
-
-  const cancelEvent = (id: number) => {
-    setEvents(
-      events.map((event) =>
-        event.id === id ? { ...event, status: "canceled" } : event
-      )
-    );
+  const deleteEvent = (id: number) => {
+    setEvents(events.filter((event) => event.id !== id));
   };
 
   const getBadgeColor = (type: string) => {
     switch (type) {
       case "class":
-        return "bg-blue-100 text-blue-800";
+        return "bg-green-100 text-green-800";
       case "exam":
         return "bg-amber-100 text-amber-800";
-      case "meeting":
-        return "bg-purple-100 text-purple-800";
+      case "school":
+        return "bg-blue-100 text-blue-800";
       case "holiday":
-        return "bg-green-100 text-green-800";
+        return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "scheduled":
-        return <Badge variant="outline" className="text-blue-500 border-blue-200">Scheduled</Badge>;
-      case "completed":
-        return <Badge variant="outline" className="text-green-500 border-green-200">Completed</Badge>;
-      case "canceled":
-        return <Badge variant="outline" className="text-red-500 border-red-200">Canceled</Badge>;
-      default:
-        return null;
     }
   };
 
@@ -178,23 +137,18 @@ const TeacherCalendar = () => {
         <div className="md:col-span-2">
           <Card>
             <CardHeader className="pb-3">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                  <CardTitle>Class Schedule</CardTitle>
-                  <CardDescription>
-                    Manage your classes, exams and meetings
-                  </CardDescription>
-                </div>
-                <div className="flex gap-2 w-full sm:w-auto">
+              <div className="flex justify-between items-center">
+                <CardTitle>Teacher Calendar</CardTitle>
+                <div className="flex gap-2">
                   <Select value={filter} onValueChange={setFilter}>
-                    <SelectTrigger className="w-full sm:w-[150px]">
+                    <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Filter Events" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Events</SelectItem>
                       <SelectItem value="class">Classes</SelectItem>
                       <SelectItem value="exam">Exams</SelectItem>
-                      <SelectItem value="meeting">Meetings</SelectItem>
+                      <SelectItem value="school">School Events</SelectItem>
                       <SelectItem value="holiday">Holidays</SelectItem>
                     </SelectContent>
                   </Select>
@@ -208,116 +162,105 @@ const TeacherCalendar = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <TabsContent value="month" className="mt-0">
-                <div className="p-3 bg-white rounded-lg">
-                  <CalendarComponent
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    className="pointer-events-auto"
-                    modifiers={{
-                      booked: filteredEvents.map((event) => event.date),
-                    }}
-                    modifiersStyles={{
-                      booked: {
-                        fontWeight: "bold",
-                        color: "white",
-                        backgroundColor: "#4A6FFF",
-                      },
-                    }}
-                  />
-                </div>
-              </TabsContent>
-              <TabsContent value="list" className="mt-0 space-y-4">
-                {filteredEvents.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-3" />
-                    <h3 className="font-medium">No events found</h3>
-                    <p>Try changing your filter or add new events</p>
+              <Tabs value={view}>
+                <TabsContent value="month" className="mt-0">
+                  <div className="p-3 bg-white rounded-lg">
+                    <CalendarComponent
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      className="pointer-events-auto"
+                      modifiers={{
+                        booked: filteredEvents.map((event) => event.date),
+                      }}
+                      modifiersStyles={{
+                        booked: {
+                          fontWeight: "bold",
+                          color: "white",
+                          backgroundColor: "#4A6FFF",
+                        },
+                      }}
+                    />
                   </div>
-                ) : (
-                  filteredEvents
-                    .sort((a, b) => a.date.getTime() - b.date.getTime())
-                    .map((event) => (
-                      <div
-                        key={event.id}
-                        className={`flex justify-between items-start border-b pb-4 ${
-                          event.status === "canceled" ? "opacity-60" : ""
-                        }`}
-                      >
-                        <div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span
-                              className={`text-xs px-2 py-1 rounded-full font-medium ${getBadgeColor(
-                                event.type
-                              )}`}
-                            >
-                              {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
-                            </span>
-                            <h3 className="font-medium">{event.title}</h3>
-                            {getStatusBadge(event.status || "scheduled")}
-                          </div>
-                          <div className="flex items-center gap-2 mt-2">
-                            <CalendarIcon className="h-3 w-3 text-gray-400" />
-                            <p className="text-sm text-gray-600">
-                              {format(event.date, "MMMM d, yyyy")}
-                            </p>
-                          </div>
-                          {event.startTime && (
+                </TabsContent>
+                <TabsContent value="list" className="mt-0 space-y-4">
+                  {filteredEvents.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-3" />
+                      <h3 className="font-medium">No events found</h3>
+                      <p>Try changing your filter or add new events</p>
+                    </div>
+                  ) : (
+                    filteredEvents
+                      .sort((a, b) => a.date.getTime() - b.date.getTime())
+                      .map((event) => (
+                        <div
+                          key={event.id}
+                          className="flex justify-between items-start border-b pb-4"
+                        >
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`text-xs px-2 py-1 rounded-full font-medium ${getBadgeColor(
+                                  event.type
+                                )}`}
+                              >
+                                {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
+                              </span>
+                              <h3 className="font-medium">{event.title}</h3>
+                            </div>
                             <div className="flex items-center gap-2 mt-1">
-                              <Clock className="h-3 w-3 text-gray-400" />
-                              <p className="text-sm text-gray-600">
-                                {event.startTime} - {event.endTime}
-                              </p>
+                              <span className="text-sm text-gray-600">
+                                {format(event.date, "MMMM d, yyyy")}
+                              </span>
+                              {event.time && (
+                                <>
+                                  <span className="text-gray-400">•</span>
+                                  <span className="text-sm text-gray-600">{event.time}</span>
+                                </>
+                              )}
                             </div>
-                          )}
-                          {event.location && (
-                            <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
-                              <span>{event.location}</span>
+                            <p className="text-sm text-gray-500 mt-1">
+                              {event.description}
+                            </p>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {event.className && (
+                                <div className="flex items-center gap-1 text-xs text-gray-500">
+                                  <BookOpen size={14} />
+                                  <span>Class {event.className}</span>
+                                </div>
+                              )}
+                              {event.participants && (
+                                <div className="flex items-center gap-1 text-xs text-gray-500">
+                                  <Users size={14} />
+                                  <span>{event.participants.join(", ")}</span>
+                                </div>
+                              )}
                             </div>
-                          )}
-                          <p className="text-sm text-gray-500 mt-2">
-                            {event.description}
-                          </p>
-                          {event.className && (
-                            <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
-                              <BookOpen size={14} />
-                              <span>{event.className}</span>
-                            </div>
-                          )}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="ghost" size="icon">
+                              <Edit size={16} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => deleteEvent(event.id)}
+                            >
+                              <Trash2 size={16} className="text-red-500" />
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex gap-2">
-                          {event.status === "scheduled" && (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => markAsComplete(event.id)}
-                                className="text-green-500"
-                              >
-                                <Check size={16} />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => cancelEvent(event.id)}
-                                className="text-red-500"
-                              >
-                                <X size={16} />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                )}
-              </TabsContent>
+                      ))
+                  )}
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </div>
 
         <div className="space-y-6">
-          {/* Today's Schedule Card */}
+          {/* Event Details Card */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">
@@ -326,41 +269,41 @@ const TeacherCalendar = () => {
             </CardHeader>
             <CardContent>
               {todaysEvents.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {todaysEvents.map((event) => (
                     <div
                       key={event.id}
-                      className={`p-3 border rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors ${
-                        event.status === "canceled" ? "opacity-60" : ""
-                      }`}
+                      className="p-3 border rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`w-2 h-8 rounded-full ${
-                              event.type === "class"
-                                ? "bg-blue-500"
-                                : event.type === "exam"
-                                ? "bg-amber-500"
-                                : event.type === "meeting"
-                                ? "bg-purple-500"
-                                : "bg-green-500"
-                            }`}
-                          ></span>
-                          <div>
-                            <h3 className="font-medium">{event.title}</h3>
-                            {event.startTime && (
-                              <p className="text-xs text-gray-600">
-                                {event.startTime} - {event.endTime}
-                              </p>
-                            )}
-                            {event.location && (
-                              <p className="text-xs text-gray-500">{event.location}</p>
-                            )}
-                          </div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`w-2 h-8 rounded-full ${
+                            event.type === "school"
+                              ? "bg-blue-500"
+                              : event.type === "class"
+                              ? "bg-green-500"
+                              : event.type === "exam"
+                              ? "bg-amber-500"
+                              : "bg-red-500"
+                          }`}
+                        ></span>
+                        <div>
+                          <h3 className="font-medium">{event.title}</h3>
+                          {event.time && (
+                            <div className="flex items-center gap-1 text-xs text-gray-600">
+                              <Clock size={12} />
+                              <span>{event.time}</span>
+                            </div>
+                          )}
+                          <p className="text-sm text-gray-600 mt-1">{event.description}</p>
                         </div>
-                        <div>{getStatusBadge(event.status || "scheduled")}</div>
                       </div>
+                      {event.participants && (
+                        <div className="mt-2 pl-4 text-xs text-gray-500">
+                          <span className="font-medium">Participants: </span>
+                          {event.participants.join(", ")}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -413,30 +356,16 @@ const TeacherCalendar = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="startTime">Start Time</Label>
-                    <Input
-                      id="startTime"
-                      type="time"
-                      value={newEvent.startTime}
-                      onChange={(e) =>
-                        setNewEvent({ ...newEvent, startTime: e.target.value })
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="endTime">End Time</Label>
-                    <Input
-                      id="endTime"
-                      type="time"
-                      value={newEvent.endTime}
-                      onChange={(e) =>
-                        setNewEvent({ ...newEvent, endTime: e.target.value })
-                      }
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="time">Time (Optional)</Label>
+                  <Input
+                    id="time"
+                    placeholder="e.g. 9:00 AM - 10:30 AM"
+                    value={newEvent.time || ""}
+                    onChange={(e) =>
+                      setNewEvent({ ...newEvent, time: e.target.value })
+                    }
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -453,22 +382,10 @@ const TeacherCalendar = () => {
                     <SelectContent>
                       <SelectItem value="class">Class</SelectItem>
                       <SelectItem value="exam">Exam</SelectItem>
-                      <SelectItem value="meeting">Meeting</SelectItem>
+                      <SelectItem value="school">School Event</SelectItem>
                       <SelectItem value="holiday">Holiday</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="location">Location</Label>
-                  <Input
-                    id="location"
-                    placeholder="Enter location"
-                    value={newEvent.location || ""}
-                    onChange={(e) =>
-                      setNewEvent({ ...newEvent, location: e.target.value })
-                    }
-                  />
                 </div>
 
                 <div className="space-y-2">
@@ -476,11 +393,11 @@ const TeacherCalendar = () => {
                   <Textarea
                     id="description"
                     placeholder="Enter event description"
-                    value={newEvent.description || ""}
+                    value={newEvent.description}
                     onChange={(e) =>
                       setNewEvent({ ...newEvent, description: e.target.value })
                     }
-                    rows={3}
+                    rows={2}
                   />
                 </div>
 

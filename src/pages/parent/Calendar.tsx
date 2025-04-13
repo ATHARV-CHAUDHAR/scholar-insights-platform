@@ -199,94 +199,97 @@ const ParentCalendar = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <TabsContent value="month" className="mt-0">
-                <div className="p-3 bg-white rounded-lg">
-                  <CalendarComponent
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    className="pointer-events-auto"
-                    modifiers={{
-                      booked: filteredEvents.map((event) => event.date),
-                      important: filteredEvents
-                        .filter((event) => event.isImportant)
-                        .map((event) => event.date),
-                    }}
-                    modifiersStyles={{
-                      booked: {
-                        fontWeight: "bold",
-                        color: "white",
-                        backgroundColor: "#4A6FFF",
-                      },
-                      important: {
-                        fontWeight: "bold",
-                        color: "white",
-                        backgroundColor: "#FF4A6F",
-                      },
-                    }}
-                  />
-                </div>
-              </TabsContent>
-              <TabsContent value="list" className="mt-0 space-y-4">
-                {filteredEvents.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-3" />
-                    <h3 className="font-medium">No events found</h3>
-                    <p>Try changing your filter</p>
+              {/* Fix: Properly wrap TabsContent within Tabs */}
+              <Tabs value={view}>
+                <TabsContent value="month" className="mt-0">
+                  <div className="p-3 bg-white rounded-lg">
+                    <CalendarComponent
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      className="pointer-events-auto"
+                      modifiers={{
+                        booked: filteredEvents.map((event) => event.date),
+                        important: filteredEvents
+                          .filter((event) => event.isImportant)
+                          .map((event) => event.date),
+                      }}
+                      modifiersStyles={{
+                        booked: {
+                          fontWeight: "bold",
+                          color: "white",
+                          backgroundColor: "#4A6FFF",
+                        },
+                        important: {
+                          fontWeight: "bold",
+                          color: "white",
+                          backgroundColor: "#FF4A6F",
+                        },
+                      }}
+                    />
                   </div>
-                ) : (
-                  filteredEvents
-                    .sort((a, b) => a.date.getTime() - b.date.getTime())
-                    .map((event) => (
-                      <div
-                        key={event.id}
-                        className="flex justify-between items-start border-b pb-4"
-                      >
-                        <div className="flex gap-3">
-                          <div className="mt-1">{getEventTypeIcon(event.type)}</div>
-                          <div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="font-medium">{event.title}</h3>
-                              {getEventTypeBadge(event.type)}
-                              {event.requiresAction && (
-                                <Badge variant="secondary" className="bg-red-100 text-red-800 hover:bg-red-200">
-                                  Action Required
-                                </Badge>
+                </TabsContent>
+                <TabsContent value="list" className="mt-0 space-y-4">
+                  {filteredEvents.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-3" />
+                      <h3 className="font-medium">No events found</h3>
+                      <p>Try changing your filter</p>
+                    </div>
+                  ) : (
+                    filteredEvents
+                      .sort((a, b) => a.date.getTime() - b.date.getTime())
+                      .map((event) => (
+                        <div
+                          key={event.id}
+                          className="flex justify-between items-start border-b pb-4"
+                        >
+                          <div className="flex gap-3">
+                            <div className="mt-1">{getEventTypeIcon(event.type)}</div>
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className="font-medium">{event.title}</h3>
+                                {getEventTypeBadge(event.type)}
+                                {event.requiresAction && (
+                                  <Badge variant="secondary" className="bg-red-100 text-red-800 hover:bg-red-200">
+                                    Action Required
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 mt-2">
+                                <CalendarIcon className="h-3 w-3 text-gray-400" />
+                                <p className="text-sm text-gray-600">
+                                  {format(event.date, "MMMM d, yyyy")}
+                                </p>
+                              </div>
+                              {event.time && (
+                                <div className="flex items-center gap-2 mt-1">
+                                  <Clock className="h-3 w-3 text-gray-400" />
+                                  <p className="text-sm text-gray-600">{event.time}</p>
+                                </div>
+                              )}
+                              {event.location && (
+                                <div className="flex items-center gap-2 mt-1">
+                                  <Map className="h-3 w-3 text-gray-400" />
+                                  <p className="text-sm text-gray-600">{event.location}</p>
+                                </div>
+                              )}
+                              <p className="text-sm text-gray-500 mt-2">
+                                {event.description}
+                              </p>
+                              {event.className && (
+                                <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
+                                  <BookOpen size={14} />
+                                  <span>{event.className}</span>
+                                </div>
                               )}
                             </div>
-                            <div className="flex items-center gap-2 mt-2">
-                              <CalendarIcon className="h-3 w-3 text-gray-400" />
-                              <p className="text-sm text-gray-600">
-                                {format(event.date, "MMMM d, yyyy")}
-                              </p>
-                            </div>
-                            {event.time && (
-                              <div className="flex items-center gap-2 mt-1">
-                                <Clock className="h-3 w-3 text-gray-400" />
-                                <p className="text-sm text-gray-600">{event.time}</p>
-                              </div>
-                            )}
-                            {event.location && (
-                              <div className="flex items-center gap-2 mt-1">
-                                <Map className="h-3 w-3 text-gray-400" />
-                                <p className="text-sm text-gray-600">{event.location}</p>
-                              </div>
-                            )}
-                            <p className="text-sm text-gray-500 mt-2">
-                              {event.description}
-                            </p>
-                            {event.className && (
-                              <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
-                                <BookOpen size={14} />
-                                <span>{event.className}</span>
-                              </div>
-                            )}
                           </div>
                         </div>
-                      </div>
-                    ))
-                )}
-              </TabsContent>
+                      ))
+                  )}
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </div>
