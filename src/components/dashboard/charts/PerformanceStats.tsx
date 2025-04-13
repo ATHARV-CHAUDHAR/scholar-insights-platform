@@ -2,7 +2,8 @@
 import React from 'react';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { getTrendIcon } from './utils';
+import { getTrendIconComponent } from './utils';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 interface PerformanceStatsProps {
   currentValue: number;
@@ -19,6 +20,13 @@ const PerformanceStats: React.FC<PerformanceStatsProps> = ({
   trend,
   trendPercentage
 }) => {
+  // Render the appropriate icon based on the trend
+  const renderTrendIcon = () => {
+    if (trend === 'up') return <TrendingUp className="h-3 w-3 mr-1" />;
+    if (trend === 'down') return <TrendingDown className="h-3 w-3 mr-1" />;
+    return <Minus className="h-3 w-3 mr-1" />;
+  };
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-6 mt-2 pt-2 border-t">
       <div className="flex items-center gap-2">
@@ -29,7 +37,7 @@ const PerformanceStats: React.FC<PerformanceStatsProps> = ({
           trend === 'up' ? "text-green-600" : 
           trend === 'down' ? "text-red-600" : "text-gray-600"
         )}>
-          {getTrendIcon(trend)}
+          {renderTrendIcon()}
           {trend !== 'neutral' ? `${trendPercentage}%` : '-'}
         </div>
       </div>

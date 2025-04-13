@@ -45,8 +45,14 @@ export const calculateStats = (data: PerformanceData[]) => {
   };
 };
 
-export const getTrendIcon = (trend: string) => {
-  if (trend === 'up') return <TrendingUp className="h-3 w-3 mr-1" />;
-  if (trend === 'down') return <TrendingDown className="h-3 w-3 mr-1" />;
-  return <Minus className="h-3 w-3 mr-1" />;
+// This is a function that returns a React element, but it should be in a .tsx file
+// Instead, we'll make it a function that returns a type that React components will use
+export type TrendIconType = 'up' | 'down' | 'neutral';
+
+// We'll rename this to indicate that it shouldn't be directly used in a .ts file
+export const getTrendIconComponent = (trend: string) => {
+  if (trend === 'up') return TrendingUp;
+  if (trend === 'down') return TrendingDown;
+  return Minus;
 };
+
