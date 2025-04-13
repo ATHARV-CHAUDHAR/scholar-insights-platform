@@ -91,9 +91,11 @@ const Login: React.FC = () => {
       <div className={`w-full max-w-md relative z-10 transition-all duration-1000 transform ${animationLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
         <div className="text-center mb-8 transition-all duration-500 delay-300">
           <div className="flex justify-center">
-            <div className="h-16 w-16 rounded-md bg-gradient-to-br from-scholar-primary to-scholar-accent flex items-center justify-center shadow-lg transform hover:rotate-12 transition-all duration-300 hover:scale-110">
-              <span className="text-white font-bold text-2xl">AE</span>
-            </div>
+            <img 
+              src="/lovable-uploads/ava-ed-tech-logo.png" 
+              alt="AVA Ed. Tech Logo" 
+              className="h-16 w-16 object-contain mb-4"
+            />
           </div>
           <h1 className="mt-4 text-4xl font-bold text-white animate-fade-in">AVA Ed. Tech.</h1>
           <p className="mt-2 text-gray-300 animate-fade-in">Sign in to your account</p>

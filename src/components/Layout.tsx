@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -38,7 +37,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
-  // Define navigation items based on user role
   const getNavigationItems = () => {
     if (user?.role === 'admin') {
       return [
@@ -75,27 +73,29 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   
   return (
     <div className="min-h-screen flex bg-gray-50">
-      {/* Sidebar */}
       <div 
         className={cn(
           "fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transition-all duration-300 ease-in-out",
           sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0 md:w-20"
         )}
       >
-        {/* Logo & Toggle */}
         <div className="flex items-center justify-between h-16 px-4 border-b">
           <Link to="/" className="flex items-center">
             {sidebarOpen ? (
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-md bg-gradient-to-br from-scholar-primary to-scholar-accent flex items-center justify-center">
-                  <span className="text-white font-bold">AE</span>
-                </div>
+                <img 
+                  src="/lovable-uploads/ava-ed-tech-logo.png" 
+                  alt="AVA Ed. Tech Logo" 
+                  className="h-8 w-8 object-contain"
+                />
                 <span className="font-semibold text-lg">AVA Ed. Tech.</span>
               </div>
             ) : (
-              <div className="h-8 w-8 mx-auto rounded-md bg-gradient-to-br from-scholar-primary to-scholar-accent flex items-center justify-center">
-                <span className="text-white font-bold">AE</span>
-              </div>
+              <img 
+                src="/lovable-uploads/ava-ed-tech-logo.png" 
+                alt="AVA Ed. Tech Logo" 
+                className="h-8 w-8 mx-auto object-contain"
+              />
             )}
           </Link>
           <button 
@@ -118,7 +118,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </button>
         </div>
         
-        {/* Navigation */}
         <nav className="px-2 py-4">
           <ul className="space-y-1">
             {navigationItems.map((item) => (
@@ -140,7 +139,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </ul>
         </nav>
         
-        {/* User Menu (at bottom) */}
         <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 p-4">
           {sidebarOpen ? (
             <div className="flex items-center justify-between">
@@ -172,14 +170,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </div>
       
-      {/* Main Content */}
       <div 
         className={cn(
           "flex-1 transition-all duration-300 ease-in-out",
           sidebarOpen ? "md:ml-64" : "md:ml-20"
         )}
       >
-        {/* Top Navigation */}
         <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
           <div className="flex items-center justify-between h-16 px-4 md:px-6">
             <div className="flex items-center">
@@ -190,7 +186,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <AlignJustify size={20} />
               </button>
               <h1 className="text-xl font-semibold truncate">
-                {/* Page title based on path */}
                 {location.pathname.split('/').pop()?.charAt(0).toUpperCase() + 
                  location.pathname.split('/').pop()?.slice(1) || 'Dashboard'}
               </h1>
@@ -258,13 +253,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </header>
         
-        {/* Page Content */}
         <main className="p-4 md:p-6 min-h-[calc(100vh-4rem)]">
           {children}
         </main>
       </div>
       
-      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
