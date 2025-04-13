@@ -92,7 +92,7 @@ const Login: React.FC = () => {
         <div className="text-center mb-8 transition-all duration-500 delay-300">
           <div className="flex justify-center">
             <img 
-              src="/lovable-uploads/ava-ed-tech-logo.png" 
+              src="/ava-ed-tech-logo.png" 
               alt="AVA Ed. Tech Logo" 
               className="h-16 w-16 object-contain mb-4"
             />

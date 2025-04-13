@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -71,7 +70,7 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({
         {sidebarOpen ? (
           <div className="flex items-center gap-2">
             <img 
-              src="/lovable-uploads/ava-ed-tech-logo.png" 
+              src="/ava-ed-tech-logo.png" 
               alt="AVA Ed. Tech Logo" 
               className="h-8 w-8 object-contain"
             />
@@ -79,7 +78,7 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({
           </div>
         ) : (
           <img 
-            src="/lovable-uploads/ava-ed-tech-logo.png" 
+            src="/ava-ed-tech-logo.png" 
             alt="AVA Ed. Tech Logo" 
             className="h-8 w-8 mx-auto object-contain"
           />
