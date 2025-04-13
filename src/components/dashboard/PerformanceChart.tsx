@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Area, AreaChart, ComposedChart, Bar } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
@@ -239,17 +239,13 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
           
           {showTabs && (
             <div className="hidden sm:block">
-              <TabsList className="bg-muted/30">
-                <TabsTrigger value="line" onClick={() => setChartType('line')} className={chartType === 'line' ? 'bg-background' : ''}>
-                  Line
-                </TabsTrigger>
-                <TabsTrigger value="area" onClick={() => setChartType('area')} className={chartType === 'area' ? 'bg-background' : ''}>
-                  Area
-                </TabsTrigger>
-                <TabsTrigger value="bar" onClick={() => setChartType('bar')} className={chartType === 'bar' ? 'bg-background' : ''}>
-                  Bar
-                </TabsTrigger>
-              </TabsList>
+              <Tabs value={chartType} onValueChange={setChartType}>
+                <TabsList className="bg-muted/30">
+                  <TabsTrigger value="line">Line</TabsTrigger>
+                  <TabsTrigger value="area">Area</TabsTrigger>
+                  <TabsTrigger value="bar">Bar</TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
           )}
         </div>
