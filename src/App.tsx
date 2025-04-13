@@ -16,10 +16,13 @@ import NotFound from "./pages/NotFound";
 import TeacherDashboard from "./pages/teacher/Dashboard";
 import TeacherAttendance from "./pages/teacher/Attendance";
 import TeacherPerformance from "./pages/teacher/Performance";
+import TeacherCalendar from "./pages/teacher/Calendar";
 import StudentDetail from "./pages/teacher/StudentDetail";
 
 // Parent Pages
 import ParentDashboard from "./pages/parent/Dashboard";
+import ParentPerformance from "./pages/parent/Performance";
+import ParentCalendar from "./pages/parent/Calendar";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -27,6 +30,7 @@ import AdminTeachers from "./pages/admin/Teachers";
 import AdminStudents from "./pages/admin/Students";
 import AdminClasses from "./pages/admin/Classes";
 import AdminSettings from "./pages/admin/Settings";
+import AdminCalendar from "./pages/admin/Calendar";
 import SystemStatusPage from "./pages/admin/SystemStatus";
 import NewTeacher from "./pages/admin/NewTeacher";
 import NewClass from "./pages/admin/NewClass";
@@ -103,6 +107,14 @@ const App = () => (
               } 
             />
             <Route 
+              path="/admin/calendar" 
+              element={
+                <PrivateRoute allowedRoles={['admin']}>
+                  <AdminCalendar />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
               path="/admin/system-status" 
               element={
                 <PrivateRoute allowedRoles={['admin']}>
@@ -137,6 +149,14 @@ const App = () => (
               } 
             />
             <Route 
+              path="/teacher/calendar" 
+              element={
+                <PrivateRoute allowedRoles={['teacher', 'admin']}>
+                  <TeacherCalendar />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
               path="/teacher/student/:id" 
               element={
                 <PrivateRoute allowedRoles={['teacher', 'admin']}>
@@ -151,6 +171,22 @@ const App = () => (
               element={
                 <PrivateRoute allowedRoles={['parent']}>
                   <ParentDashboard />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/parent/performance" 
+              element={
+                <PrivateRoute allowedRoles={['parent']}>
+                  <ParentPerformance />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/parent/calendar" 
+              element={
+                <PrivateRoute allowedRoles={['parent']}>
+                  <ParentCalendar />
                 </PrivateRoute>
               } 
             />
