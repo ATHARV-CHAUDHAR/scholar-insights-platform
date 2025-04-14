@@ -23,7 +23,6 @@ import StudentDetail from "./pages/teacher/StudentDetail";
 import ParentDashboard from "./pages/parent/Dashboard";
 import ParentPerformance from "./pages/parent/Performance";
 import ParentCalendar from "./pages/parent/Calendar";
-import ParentAttendance from "./pages/parent/Attendance";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -188,14 +187,6 @@ const App = () => (
               element={
                 <PrivateRoute allowedRoles={['parent']}>
                   <ParentCalendar />
-                </PrivateRoute>
-              } 
-            />
-            <Route 
-              path="/parent/attendance" 
-              element={
-                <PrivateRoute allowedRoles={['parent']}>
-                  <ParentAttendance />
                 </PrivateRoute>
               } 
             />
