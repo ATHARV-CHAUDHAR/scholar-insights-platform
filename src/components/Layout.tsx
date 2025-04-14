@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,10 +14,7 @@ import {
   X,
   Bell,
   Settings,
-  AlignJustify,
-  Home,
-  CalendarRange,
-  LineChart
+  AlignJustify
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -40,36 +38,30 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
-  // Navigation items for different user roles
-  const adminNav = [
-    { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'Teachers', path: '/admin/teachers', icon: Users },
-    { name: 'Students', path: '/admin/students', icon: Users },
-    { name: 'Classes', path: '/admin/classes', icon: BookOpen },
-    { name: 'Calendar', path: '/admin/calendar', icon: Calendar },
-  ];
-
-  const teacherNav = [
-    { name: 'Dashboard', path: '/teacher/dashboard', icon: LayoutDashboard },
-    { name: 'Attendance', path: '/teacher/attendance', icon: Users },
-    { name: 'Performance', path: '/teacher/performance', icon: BookOpen },
-    { name: 'Calendar', path: '/teacher/calendar', icon: Calendar },
-  ];
-
-  const parentNav = [
-    { name: 'Dashboard', href: '/parent/dashboard', icon: Home },
-    { name: 'Attendance', href: '/parent/attendance', icon: Calendar },
-    { name: 'Performance', href: '/parent/performance', icon: LineChart },
-    { name: 'Calendar', href: '/parent/calendar', icon: CalendarRange },
-  ];
-
+  // Define navigation items based on user role
   const getNavigationItems = () => {
     if (user?.role === 'admin') {
-      return adminNav;
+      return [
+        { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+        { name: 'Teachers', path: '/admin/teachers', icon: Users },
+        { name: 'Students', path: '/admin/students', icon: Users },
+        { name: 'Classes', path: '/admin/classes', icon: BookOpen },
+        { name: 'Calendar', path: '/admin/calendar', icon: Calendar },
+      ];
     } else if (user?.role === 'teacher') {
-      return teacherNav;
+      return [
+        { name: 'Dashboard', path: '/teacher/dashboard', icon: LayoutDashboard },
+        { name: 'Attendance', path: '/teacher/attendance', icon: Users },
+        { name: 'Performance', path: '/teacher/performance', icon: BookOpen },
+        { name: 'Calendar', path: '/teacher/calendar', icon: Calendar },
+      ];
     } else if (user?.role === 'parent') {
-      return parentNav;
+      return [
+        { name: 'Dashboard', path: '/parent/dashboard', icon: LayoutDashboard },
+        { name: 'Attendance', path: '/parent/attendance', icon: Users },
+        { name: 'Performance', path: '/parent/performance', icon: BookOpen },
+        { name: 'Calendar', path: '/parent/calendar', icon: Calendar },
+      ];
     }
     return [];
   };
