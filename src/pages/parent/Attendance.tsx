@@ -5,8 +5,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { students } from '@/utils/mockData';
 import { Card, CardContent } from '@/components/ui/card';
 import AttendanceTab from '@/components/parent/AttendanceTab';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
 
 const ParentAttendance: React.FC = () => {
   const { user } = useAuth();
@@ -16,6 +24,15 @@ const ParentAttendance: React.FC = () => {
   
   // State for selected child
   const [selectedChildId, setSelectedChildId] = useState(myChildren.length > 0 ? myChildren[0].id : '');
+  
+  // Handle button click for demo purposes
+  const handleRefreshClick = () => {
+    toast({
+      title: "Refreshing attendance data",
+      description: "Attendance records are being updated..."
+    });
+    // In a real app, this would fetch updated data from the backend
+  };
   
   // If no children, show a message
   if (myChildren.length === 0) {
@@ -43,23 +60,35 @@ const ParentAttendance: React.FC = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h2 className="text-3xl font-bold tracking-tight">Attendance Records</h2>
           
-          {myChildren.length > 1 && (
-            <Select 
-              value={selectedChildId} 
-              onValueChange={setSelectedChildId}
+          <div className="flex gap-2 items-center">
+            {myChildren.length > 1 && (
+              <Select 
+                value={selectedChildId} 
+                onValueChange={(value) => {
+                  setSelectedChildId(value);
+                }}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select child" />
+                </SelectTrigger>
+                <SelectContent>
+                  {myChildren.map(child => (
+                    <SelectItem key={child.id} value={child.id}>
+                      {child.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            
+            <Button 
+              variant="outline" 
+              onClick={handleRefreshClick}
+              type="button"
             >
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Select child" />
-              </SelectTrigger>
-              <SelectContent>
-                {myChildren.map(child => (
-                  <SelectItem key={child.id} value={child.id}>
-                    {child.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
+              Refresh Data
+            </Button>
+          </div>
         </div>
         
         {selectedChildId && <AttendanceTab studentId={selectedChildId} />}
